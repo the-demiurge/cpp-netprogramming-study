@@ -1,6 +1,3 @@
-// SimpleTCPServer.cpp : Defines the entry point for the console application.
-//
-
 #include "stdafx.h"
 
 #define DEFAULT_PORT 5557
@@ -34,7 +31,12 @@ int main(int argc, char* argv[])
 	sockaddr_in server_addr;
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(port);
-	server_addr.sin_addr.s_addr = parse_cmd_result ? inet_addr(host): htonl(INADDR_ANY);
+	if (parse_cmd && strlen(host) > 0) {
+		server_addr.sin_addr.s_addr = inet_addr(host);
+	}
+	else {
+		server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+	}
 	
 	//Bind socket to the address on the server
 	if (bind(server_socket, (sockaddr*)&server_addr, sizeof(sockaddr))) {
@@ -58,7 +60,8 @@ int main(int argc, char* argv[])
 		int len = sizeof(incom_addr);
 		SOCKET socket = accept(server_socket, (sockaddr*)&incom_addr, &len);
 		if (socket <= 0) {
-			error_msg("Incomming connection is wrong");
+			error_msg("Can't accept connection");
+			return -1;
 		}
 		handle_connection(socket, &incom_addr);
 	}
@@ -140,4 +143,3 @@ void exit_handler()
 	closesocket(server_socket);
 	WSACleanup();
 }
-

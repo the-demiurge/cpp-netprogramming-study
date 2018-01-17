@@ -3,15 +3,21 @@
 
 #include "stdafx.h"
 
-bool parse_cmd(int argc, char* argv[], char* host, unsigned short port);
+#define DEFAULT_PORT 5557
+#define CONNECTION_QUEUE 100
+
+bool parse_cmd(int argc, char* argv[], char* host, short* port);
+void handle_connection(SOCKET, sockaddr_in*);
 void error_msg(const char*);
 void exit_handler();
 
+SOCKET server_socket;
 int main(int argc, char* argv[])
 {
 	atexit(exit_handler);
-	unsigned short port = 0;
+	short port = DEFAULT_PORT;
 	char host[128] = "";
+	bool parse_cmd_result = parse_cmd(argc, argv, host, &port);
 
 	WSADATA ws;
 	if (WSAStartup(MAKEWORD(2, 2), &ws)) {
@@ -19,20 +25,54 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	SOCKET server_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (server_sock <= 0) {
+	server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (server_socket <= 0) {
 		error_msg("Can't create socket");
 		return -1;
 	}
 
 	sockaddr_in server_addr;
 	server_addr.sin_family = AF_INET;
-	server_addr.sin_port = htons()
+	server_addr.sin_port = htons(port);
+	server_addr.sin_addr.s_addr = parse_cmd_result ? inet_addr(host): htonl(INADDR_ANY);
+	
+	//Bind socket to the address on the server
+	if (bind(server_socket, (sockaddr*)&server_addr, sizeof(sockaddr))) {
+		char err_msg[128] = "";
+		sprintf(err_msg, "Can't bind socket to the port %d", port);
+		error_msg(err_msg);
+		return -1;
+	}
+
+	if (listen(server_socket, CONNECTION_QUEUE)) {
+		error_msg("Error listening socket");
+		return -1;
+	}
+
+	printf("Server running at the port %d\n", port);
+
+	while (true)
+	{
+		sockaddr_in incom_addr;
+		memset(&incom_addr, 0, sizeof(incom_addr));
+		int len = sizeof(incom_addr);
+		SOCKET socket = accept(server_socket, (sockaddr*)&incom_addr, &len);
+		if (socket <= 0) {
+			error_msg("Incomming connection is wrong");
+		}
+		handle_connection(socket, &incom_addr);
+	}
+	closesocket(server_socket);
+
     return 0;
 }
 
-bool parse_cmd(int argc, char* argv[], char* host, unsigned short port)
+bool parse_cmd(int argc, char* argv[], char* host, short* port)
 {
+	if (argc < 2) {
+		return false;
+	}
+
 	char all_args[256];
 	memset(all_args, 0, sizeof all_args);
 	
@@ -63,7 +103,7 @@ bool parse_cmd(int argc, char* argv[], char* host, unsigned short port)
 				strcpy(host, tmp_hosts[i]);
 			}
 			if (tmp_ports[i] > 0) {
-				port = (unsigned short)tmp_ports[i];
+				*port = (short)tmp_ports[i];
 				return true;
 			}
 		}
@@ -73,12 +113,31 @@ bool parse_cmd(int argc, char* argv[], char* host, unsigned short port)
 	
 }
 
+void handle_connection(SOCKET socket, sockaddr_in* addr) {
+	char* str_in_addr = inet_ntoa(addr->sin_addr);
+	printf("[%s]>>%s\n", str_in_addr, "Establish new connection");
+	while (true) {
+		char buffer[256];
+		memset(buffer, 0, sizeof(buffer));
+		int rc = recv(socket, buffer, sizeof(buffer), 0);
+		if (rc > 0) {
+			printf("[%s]:%s\n", str_in_addr, buffer);
+		}
+		else {
+			break;
+		}
+	}
+	closesocket(socket);
+	printf("[%s]>>%s", str_in_addr, "Close incomming connection");
+}
+
 void error_msg(const char* msg) {
 	printf("%s\n", msg);
 }
 
 void exit_handler()
 {
+	closesocket(server_socket);
 	WSACleanup();
 }
 

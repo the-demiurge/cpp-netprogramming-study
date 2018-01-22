@@ -49,9 +49,10 @@ int main(int argc, char* argv[])
 
 	printf("Connection to the server %s:%d success\n", host, port);
 
-	char msg[256] = "Hello, world";
+	char msg[256] = "";
 	printf("%s", "Enter msg:");
-	scanf("%s", msg);
+	//scanf("%s", msg);
+	fgets(msg, sizeof(msg), stdin);
 	int sc = send(client_socket, msg, sizeof(msg), 0);
 	if (sc <= 0) {
 		char err_msg[128] = "";

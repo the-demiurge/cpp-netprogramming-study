@@ -1,11 +1,10 @@
-#pragma comment(lib, "ws2_32.lib")
+// SimpleTCPClient.cpp : Defines the entry point for the console application.
+//
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <winsock2.h>
+#include "stdafx.h"
+
 
 bool parse_cmd(int argc, char* argv[], char* host, short* port);
-void handle_connection(SOCKET, sockaddr_in*);
 void error_msg(const char*);
 void exit_handler();
 
@@ -16,6 +15,12 @@ int main(int argc, char* argv[])
 	short port;
 	char host[128] = "";
 	bool parse_cmd_result = parse_cmd(argc, argv, host, &port);
+
+	if (!parse_cmd_result || !host || !strlen(host))
+	{
+		printf("Invalid host or port. Usage %s -h host -p port\n", argv[0]);
+		return -1;
+	}
 
 	WSADATA ws;
 	if (WSAStartup(MAKEWORD(2, 2), &ws)) {
@@ -33,7 +38,7 @@ int main(int argc, char* argv[])
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(port);
 	server_addr.sin_addr.s_addr = inet_addr(host);
-	
+
 	//Connect to the server
 	if (connect(client_socket, (sockaddr*)&server_addr, sizeof(sockaddr))) {
 		char err_msg[128] = "";
@@ -66,28 +71,25 @@ bool parse_cmd(int argc, char* argv[], char* host, short* port)
 		return false;
 	}
 
-	char all_args[256];
-	memset(all_args, 0, sizeof all_args);
+	char all_args[256] = "";
 
 	for (int i = 1; i < argc; ++i) {
 		strcat(all_args, argv[i]);
+		strcat(all_args, " ");
 	}
-	printf("Argsss %s\n", all_args);
 
-
-	const int count_vars = 3;
+	const int count_vars = 2;
 	const int host_buf_sz = 128;
-	int tmp_ports[count_vars] = { -1, -1, -1 };
+	int tmp_ports[count_vars] = { -1, -1};
 	char tmp_hosts[count_vars][host_buf_sz];
 	for (int i = 0; i < count_vars; ++i) {
 		memset(tmp_hosts[i], 0, host_buf_sz);
 	}
-	char* formats[count_vars] = { "-h%s-p%d", "-p%d-h%s", "-p%d" };
+	char* formats[count_vars] = { "-h %s -p %d", "-p %d -h %s"};
 
 	int results[] = {
 		sscanf(all_args, formats[0], tmp_hosts[0], &tmp_ports[0]) - 2,
-		sscanf(all_args, formats[1], &tmp_ports[1], tmp_hosts[1]) - 2,
-		sscanf(all_args, formats[2], &tmp_ports[2]) - 1
+		sscanf(all_args, formats[1], &tmp_ports[1], tmp_hosts[1]) - 2
 	};
 
 	for (int i = 0; i < sizeof(results) / sizeof(int); ++i) {
@@ -104,24 +106,6 @@ bool parse_cmd(int argc, char* argv[], char* host, short* port)
 
 	return false;
 
-}
-
-void handle_connection(SOCKET socket, sockaddr_in* addr) {
-	char* str_in_addr = inet_ntoa(addr->sin_addr);
-	printf("[%s]>>%s\n", str_in_addr, "Establish new connection");
-	while (true) {
-		char buffer[256];
-		memset(buffer, 0, sizeof(buffer));
-		int rc = recv(socket, buffer, sizeof(buffer), 0);
-		if (rc > 0) {
-			printf("[%s]:%s\n", str_in_addr, buffer);
-		}
-		else {
-			break;
-		}
-	}
-	closesocket(socket);
-	printf("[%s]>>%s", str_in_addr, "Close incomming connection");
 }
 
 void error_msg(const char* msg) {

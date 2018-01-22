@@ -81,8 +81,8 @@ bool parse_cmd(int argc, char* argv[], char* host, short* port)
 	
 	for (int i = 1; i < argc; ++i) {
 		strcat(all_args, argv[i]);
+		strcat(all_args, " ");
 	}
-	printf("Argsss %s\n", all_args);
 
 	
 	const int count_vars = 3;
@@ -92,7 +92,7 @@ bool parse_cmd(int argc, char* argv[], char* host, short* port)
 	for (int i = 0; i < count_vars; ++i) {
 		memset(tmp_hosts[i], 0, host_buf_sz);
 	}
-	char* formats[count_vars] = { "-h%s-p%d", "-p%d-h%s", "-p%d" };
+	char* formats[count_vars] = { "-h %s -p %d", "-p %d -h %s", "-p %d" };
 	
 	int results[] = {
 		sscanf(all_args, formats[0], tmp_hosts[0], &tmp_ports[0]) - 2,
@@ -120,8 +120,7 @@ void handle_connection(SOCKET socket, sockaddr_in* addr) {
 	char* str_in_addr = inet_ntoa(addr->sin_addr);
 	printf("[%s]>>%s\n", str_in_addr, "Establish new connection");
 	while (true) {
-		char buffer[256];
-		memset(buffer, 0, sizeof(buffer));
+		char buffer[256] = "";
 		int rc = recv(socket, buffer, sizeof(buffer), 0);
 		if (rc > 0) {
 			printf("[%s]:%s\n", str_in_addr, buffer);

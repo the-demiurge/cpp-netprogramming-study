@@ -51,8 +51,8 @@ int main(int argc, char* argv[])
 
 	char msg[256] = "";
 	printf("%s", "Enter msg:");
-	//scanf("%s", msg);
-	fgets(msg, sizeof(msg), stdin);
+	//fgets(msg, sizeof(msg), stdin);
+	scanf("%[^\n]s", msg);
 	int sc = send(client_socket, msg, sizeof(msg), 0);
 	if (sc <= 0) {
 		char err_msg[128] = "";

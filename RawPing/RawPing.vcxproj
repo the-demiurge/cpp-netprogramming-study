@@ -139,7 +139,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="rawping.cpp" />
+    <ClCompile Include="icmp.cpp" />
+    <ClCompile Include="net_common.cpp" />
+    <ClCompile Include="ping_hlp.cpp" />
+    <ClCompile Include="ping.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="icmp.h" />
+    <ClInclude Include="net_common.h" />
+    <ClInclude Include="ping_hlp.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

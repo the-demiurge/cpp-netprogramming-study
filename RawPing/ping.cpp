@@ -73,7 +73,7 @@ int main(int argc, char **argv)
 	}
 
 	printf("Resolved IP address: %s\n", inet_ntoa(dest.sin_addr));
-	
+
 	sock_raw = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
 
 	if (sock_raw == INVALID_SOCKET)
@@ -96,12 +96,12 @@ int main(int argc, char **argv)
 		CHECK_SOCK_OPT(ret, "IP_OPTIONS");
 	}
 	// Налаштування тайм-аутів відправки і прийому
-	ret = setsockopt(sock_raw, SOL_SOCKET, SO_RCVTIMEO, 
-		            (char*)&(cmd_opts.timeout), sizeof(cmd_opts.timeout));
+	ret = setsockopt(sock_raw, SOL_SOCKET, SO_RCVTIMEO,
+		(char*)&(cmd_opts.timeout), sizeof(cmd_opts.timeout));
 	CHECK_SOCK_OPT(ret, "SO_RCVTIMEO");
 
 	ret = setsockopt(sock_raw, SOL_SOCKET, SO_SNDTIMEO,
-		            (char*)&(cmd_opts.timeout), sizeof(cmd_opts.timeout));
+		(char*)&(cmd_opts.timeout), sizeof(cmd_opts.timeout));
 	CHECK_SOCK_OPT(ret, "SO_SNDTIMEO");
 
 	// Створення ICMP -пакета
@@ -112,11 +112,11 @@ int main(int argc, char **argv)
 	fill_icmp_data(icmp_data, cmd_opts.packet_size);
 
 	CHECK_ALLOC_MEM((recvbuf = (char*)malloc(MAX_PACKET_SIZE)), "receive buffer");
-	
-	int count_rcv = 0;
+
+	int i;
 	unsigned short seq_no = 0;
 	// Початок відправки/прийому ICMP -пакетов
-	while (count_rcv++ < 4)
+	for (i = 0; i < cmd_opts.ping_count; ++i)
 	{
 		PICMP_HEADER icmp_hdr = (PICMP_HEADER)icmp_data;
 		icmp_hdr->checksum = 0;
@@ -124,8 +124,8 @@ int main(int argc, char **argv)
 		icmp_hdr->seq = seq_no++;
 		icmp_hdr->checksum = checksum((unsigned short*)icmp_data, cmd_opts.packet_size);
 
-		ret = sendto(sock_raw, icmp_data, cmd_opts.packet_size, 0, (struct sockaddr*)&dest, sizeof(dest));
-		printf("Send: %d\n", ret);
+		ret = sendto(sock_raw, icmp_data, cmd_opts.packet_size, 0,
+			(struct sockaddr*)&dest, sizeof(dest));
 		CHECK_SOCK_TRANSMIT(ret, "sendto()");
 
 		if (ret < cmd_opts.packet_size)
@@ -133,11 +133,13 @@ int main(int argc, char **argv)
 			printf("Wrote %d bytes\n", ret);
 		}
 		int from_len = sizeof(sockaddr_in);
-		ret = recvfrom(sock_raw, recvbuf, MAX_PACKET_SIZE, 0, (struct sockaddr*)&from, &from_len);
-		printf("Receive: %d\n", ret);
+		ret = recvfrom(sock_raw, recvbuf, MAX_PACKET_SIZE, 0,
+			(struct sockaddr*)&from, &from_len);
 		CHECK_SOCK_TRANSMIT(ret, "recvfrom()");
 		decode_icmp_hdr(recvbuf, ret, &from);
+#ifdef _WIN32
 		Sleep(1000);
+#endif // _WIN32
 	}
 	return 0;
 }
@@ -149,6 +151,7 @@ void usage(char *exename)
 	printf("\t -sz:<packet size> - size of packet\n");
 	printf("\t -r - route recording\n");
 	printf("\t -t:<timeout> - ping timeout\n");
+	printf("\t -cn:<count> - ping count\n");
 }
 
 void exit_handler()

@@ -1,27 +1,34 @@
 #include "ping_hlp.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
 
-int parse_cmd_opts(const char* sopts, PPING_CMD_OPTIONS opts)
+void parse_cmd_opts(const char* opt, PPING_CMD_OPTIONS opts)
 {
-	if (!sopts || !strlen(sopts))
+	if (!strcmp(opt, "-r"))
 	{
-		return EPARSE_CMD_OK;
+		opts->record_route = 1;
 	}
-
-	char rec_rt_ch = '\0';
-
-	char format[64] = "-sz:%d -%c -t:%d";
-
-	if (sscanf(sopts, format, &(opts->packet_size),
-		&rec_rt_ch, &(opts->timeout)) > 0)
+	else
 	{
-		opts->record_route = tolower(rec_rt_ch) == 'r';
-		return EPARSE_CMD_OK;
+		const char* p = strchr(opt, ':');
+		if (p && strlen(p + 1))
+		{
+			if (!strncmp(opt, "-sz", 3))
+			{
+				opts->packet_size = atoi(p + 1);
+			}
+			else if (!strncmp(opt, "-t", 2))
+			{
+				opts->timeout = atoi(p + 1);
+			}
+			else if (!strncmp(opt, "-cn", 3))
+			{
+				opts->ping_count = atoi(p + 1);
+			}
+		}
 	}
-
-	return EPARSE_CMD_ANY;
 }
 
 int parse_cmd(int argc, char* argv[], char* dest, PPING_CMD_OPTIONS opts)
@@ -30,15 +37,9 @@ int parse_cmd(int argc, char* argv[], char* dest, PPING_CMD_OPTIONS opts)
 		return EPARSE_CMD_COUNT;
 	}
 
-	char options[256] = "";
 	int i;
 	for (i = 1; i < argc - 1; ++i) {
-		sprintf(options, "%s%c", i + 1 < argc - 1 ? ' ' : '\0');
-	}
-
-	if (parse_cmd_opts(options, opts))
-	{
-		return EPARSE_CMD_OPTIONS;
+		parse_cmd_opts(argv[i], opts);
 	}
 
 	sprintf(dest, "%s", argv[argc - 1]);

@@ -1,7 +1,7 @@
 #include "icmp.h"
 
 #ifdef _WIN32
- #include <windows.h>
+#include <windows.h>
 #endif // _WIN32
 
 #include <stdio.h>
@@ -72,9 +72,13 @@ void decode_icmp_hdr(char *buf, int bytes, struct sockaddr_in *from)
 	PIP_HEADER iphdr = (PIP_HEADER)buf;
 	unsigned short iphdrlen = iphdr->h_len * 4;
 	PICMP_HEADER icmphdr = (PICMP_HEADER)(buf + iphdrlen);
+	char* str_from = inet_ntoa(from->sin_addr);
 
-	DWORD tick = GetTickCount();
-	printf("Decode: addr len %d\n", iphdrlen);
+	unsigned long tick =
+#ifdef _WIN32
+		GetTickCount();
+#endif // _WIN32
+
 	if (iphdrlen == MAX_IP_HDR_SIZE && !icmpcount)
 	{
 		decode_ip_opts(buf, bytes);
@@ -82,23 +86,29 @@ void decode_icmp_hdr(char *buf, int bytes, struct sockaddr_in *from)
 
 	if (bytes < iphdrlen + ICMP_MIN)
 	{
-		printf("Too few bytes from %s\n", inet_ntoa(from->sin_addr));
+		printf("Too few bytes from %s\n", str_from);
 	}
 
 	if (icmphdr->type != ICMP_ECHOREPLY)
 	{
-		printf("nonecho type %d recived\n", icmphdr->type);
+		printf("non-echo type %d reponse\n", icmphdr->type);
 		return;
 	}
 	// Перевірка, що це ICMP-відповідь на повідомлення
-	if (icmphdr->id != (unsigned short)GetCurrentProcessId())
+	unsigned short pid =
+#ifdef _WIN32
+	(unsigned short)GetCurrentProcessId();
+#endif // _WIN32
+
+	if (icmphdr->id != pid)
 	{
 		printf("someone else responded packet!\n");
 		return;
 	}
-	printf("%d bytes from %s:", bytes, inet_ntoa(from->sin_addr));
-	printf(" ICMP_seq = %d. ", icmphdr->seq);
-	printf(" time: %d ms\n", tick - icmphdr->timestamp);
+
+	printf("\tReceived %d bytes from %s:", bytes, str_from);
+	printf("\tICMP_seq = %d", icmphdr->seq);
+	printf("\tTime: %d ms\n", tick - icmphdr->timestamp);
 
 	icmpcount++;
 }

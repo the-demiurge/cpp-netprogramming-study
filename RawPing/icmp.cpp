@@ -13,7 +13,7 @@ void fill_icmp_data(char *icmp_data, int datasize)
 	picmp_hdr = (PICMP_HEADER)icmp_data;
 	picmp_hdr->type = ICMP_ECHO; // Луна-запит ICMP
 	picmp_hdr->code = 0;
-	picmp_hdr->id = (unsigned short)GetCurrentProcessId();
+	picmp_hdr->id = (uint16_t)GetCurrentProcessId();
 	picmp_hdr->checksum = 0;
 	picmp_hdr->seq = 0;
 
@@ -22,22 +22,22 @@ void fill_icmp_data(char *icmp_data, int datasize)
 	memset(datapart, 'E', datasize - sizeof(ICMP_HEADER));
 }
 
-unsigned short checksum(unsigned short *buffer, int size)
+uint16_t checksum(uint16_t *buffer, int size)
 {
-	unsigned long cksum = 0;
+	ulong_t cksum = 0;
 
 	while (size > 1)
 	{
 		cksum += *buffer++;
-		size -= sizeof(unsigned short);
+		size -= sizeof(uint16_t);
 	}
 	if (size)
 	{
-		cksum += *(unsigned short*)buffer;
+		cksum += *(uint16_t*)buffer;
 	}
 	cksum = (cksum & 0xffff) + (cksum >> 16);
 	cksum += (cksum >> 16);
-	return (unsigned short)~cksum;
+	return (uint16_t)~cksum;
 }
 
 void decode_ip_opts(char *buf, int bytes)
@@ -70,11 +70,11 @@ void decode_icmp_hdr(char *buf, int bytes, struct sockaddr_in *from)
 {
 	static int icmpcount = 0;
 	PIP_HEADER iphdr = (PIP_HEADER)buf;
-	unsigned short iphdrlen = iphdr->h_len * 4;
+	uint16_t iphdrlen = iphdr->h_len * 4;
 	PICMP_HEADER icmphdr = (PICMP_HEADER)(buf + iphdrlen);
 	char* str_from = inet_ntoa(from->sin_addr);
 
-	unsigned long tick =
+	ulong_t tick =
 #ifdef _WIN32
 		GetTickCount();
 #endif // _WIN32
@@ -95,9 +95,9 @@ void decode_icmp_hdr(char *buf, int bytes, struct sockaddr_in *from)
 		return;
 	}
 	// Перевірка, що це ICMP-відповідь на повідомлення
-	unsigned short pid =
+	uint16_t pid =
 #ifdef _WIN32
-	(unsigned short)GetCurrentProcessId();
+	(uint16_t)GetCurrentProcessId();
 #endif // _WIN32
 
 	if (icmphdr->id != pid)

@@ -6,7 +6,7 @@
 
 //Структура для опцій командного рядка
 typedef struct _ping_cmd_opts {
-	unsigned int packet_size;
+	uint32_t packet_size;
 	int record_route;
 	int timeout;
 	int ping_count;

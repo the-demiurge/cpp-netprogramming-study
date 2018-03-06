@@ -114,7 +114,7 @@ int main(int argc, char **argv)
 	CHECK_ALLOC_MEM((recvbuf = (char*)malloc(MAX_PACKET_SIZE)), "receive buffer");
 
 	int i;
-	unsigned short seq_no = 0;
+	uint16_t seq_no = 0;
 	// Початок відправки/прийому ICMP -пакетов
 	for (i = 0; i < cmd_opts.ping_count; ++i)
 	{
@@ -122,7 +122,7 @@ int main(int argc, char **argv)
 		icmp_hdr->checksum = 0;
 		icmp_hdr->timestamp = GetTickCount();
 		icmp_hdr->seq = seq_no++;
-		icmp_hdr->checksum = checksum((unsigned short*)icmp_data, cmd_opts.packet_size);
+		icmp_hdr->checksum = checksum((uint16_t*)icmp_data, cmd_opts.packet_size);
 
 		ret = sendto(sock_raw, icmp_data, cmd_opts.packet_size, 0,
 			(struct sockaddr*)&dest, sizeof(dest));

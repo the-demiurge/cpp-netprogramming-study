@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2024
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nslookup", "nslookup\nslookup.vcxproj", "{483DDDEB-321A-4542-AF97-80C781CCA427}"
 EndProject
@@ -18,6 +18,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RawPing", "RawPing\RawPing.vcxproj", "{CD55B324-2670-4FF2-8A2B-72CB0DF90DAB}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultiTCPServer", "MultiTCPServer\MultiTCPServer.vcxproj", "{C923E47E-AF8D-46DB-962F-17221B9335E3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MulticastDemo", "MulticastDemo\MulticastDemo.vcxproj", "{26199089-D023-41BD-BE8F-42C60A50AC31}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -153,8 +155,27 @@ Global
 		{C923E47E-AF8D-46DB-962F-17221B9335E3}.Release|x64.ActiveCfg = Release|Win32
 		{C923E47E-AF8D-46DB-962F-17221B9335E3}.Release|x86.ActiveCfg = Release|Win32
 		{C923E47E-AF8D-46DB-962F-17221B9335E3}.Release|x86.Build.0 = Release|Win32
+		{26199089-D023-41BD-BE8F-42C60A50AC31}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{26199089-D023-41BD-BE8F-42C60A50AC31}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{26199089-D023-41BD-BE8F-42C60A50AC31}.Debug|Win32.ActiveCfg = Debug|Win32
+		{26199089-D023-41BD-BE8F-42C60A50AC31}.Debug|Win32.Build.0 = Debug|Win32
+		{26199089-D023-41BD-BE8F-42C60A50AC31}.Debug|x64.ActiveCfg = Debug|x64
+		{26199089-D023-41BD-BE8F-42C60A50AC31}.Debug|x64.Build.0 = Debug|x64
+		{26199089-D023-41BD-BE8F-42C60A50AC31}.Debug|x86.ActiveCfg = Debug|Win32
+		{26199089-D023-41BD-BE8F-42C60A50AC31}.Debug|x86.Build.0 = Debug|Win32
+		{26199089-D023-41BD-BE8F-42C60A50AC31}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{26199089-D023-41BD-BE8F-42C60A50AC31}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{26199089-D023-41BD-BE8F-42C60A50AC31}.Release|Win32.ActiveCfg = Release|Win32
+		{26199089-D023-41BD-BE8F-42C60A50AC31}.Release|Win32.Build.0 = Release|Win32
+		{26199089-D023-41BD-BE8F-42C60A50AC31}.Release|x64.ActiveCfg = Release|x64
+		{26199089-D023-41BD-BE8F-42C60A50AC31}.Release|x64.Build.0 = Release|x64
+		{26199089-D023-41BD-BE8F-42C60A50AC31}.Release|x86.ActiveCfg = Release|Win32
+		{26199089-D023-41BD-BE8F-42C60A50AC31}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6A83267B-CAE8-4488-B092-60AB58EA0F36}
 	EndGlobalSection
 EndGlobal

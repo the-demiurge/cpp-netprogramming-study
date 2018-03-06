@@ -89,7 +89,8 @@ int main(int argc, char **argv) {
 	int opt_ret = setsockopt(gr_socket, IPPROTO_IP, IP_ADD_MEMBERSHIP,
 		(char *)&mcast, sizeof(mcast));
 	CHECK_SET_OPT(opt_ret, "IP_ADD_MEMBERSHIP");
-	//Налаштування значення TTL, за замовчуванням 1. optval = 8;
+	//Налаштування значення TTL, за замовчуванням 1
+	optval = 8;
 	opt_ret = setsockopt(gr_socket, IPPROTO_IP, IP_MULTICAST_TTL,
 		(char*)&optval, sizeof(int));
 	CHECK_SET_OPT(opt_ret, "IP_MULTICAST_TTL");

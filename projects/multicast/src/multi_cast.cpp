@@ -1,5 +1,5 @@
 #include "multi_cast.h"
-
+#include <ctype.h>
 void parse_cmd_line(int argc, char **argv, PMULTICAST_GROUP_OPTION opts) {
 	int i;
     opts->ip_interface = htonl(INADDR_ANY);

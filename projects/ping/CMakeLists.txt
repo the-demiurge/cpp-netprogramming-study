@@ -1,2 +1,2 @@
-add_subdirectory(ping_win32)
+#add_subdirectory(ping_win32)
 add_subdirectory(ip_ping)

@@ -3,7 +3,8 @@
 void exit_handler();
 
 SOCKET server_socket;
-std::vector<HANDLE> connection_pool;
+std::vector<THREAD_HANDLE> connection_pool;
+
 int main(int argc, char* argv[])
 {
 	atexit(common_exit_handler);
@@ -12,21 +13,11 @@ int main(int argc, char* argv[])
 	char host[128] = "";
 	bool parse_cmd_result = parse_cmd(argc, argv, host, &port);
 
-	WSADATA ws;
-	CHECK_IO(!WSAStartup(MAKEWORD(2, 2), &ws), -1, "Error init of WinSock2");
-
-	server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	CHECK_IO((server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) > 0, -1, "Can't create socket");
+	common_init_handler();
+    CHECK_IO((server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) > 0, -1, "Can't create socket");
 
 	sockaddr_in server_addr;
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_port = htons(port);
-	if (parse_cmd && strlen(host) > 0) {
-		server_addr.sin_addr.s_addr = inet_addr(host);
-	}
-	else {
-		server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	}
+	init_inet_address(&server_addr, host, port);
 
 	//Bind socket to the address on the server
 	CHECK_IO(!bind(server_socket, (sockaddr*)&server_addr, sizeof(sockaddr)), -1, "Can't bind socket to the port %d", port);
@@ -39,16 +30,15 @@ int main(int argc, char* argv[])
 	{
 		sockaddr_in incom_addr;
 		memset(&incom_addr, 0, sizeof(incom_addr));
-		int len = sizeof(incom_addr);
+		socklen_t len = sizeof(incom_addr);
 		SOCKET socket;
 		CHECK_IO((socket = accept(server_socket, (sockaddr*)&incom_addr, &len)) > 0, -1, "Can't accept connection");
-		DWORD hThreadId;
 		connection_pool.push_back(
-			CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)handle_connection, (LPVOID)socket, 0, &hThreadId)
+			create_thread(handle_connection, (SOCKET*)socket)
 		);
 	}
 
-	closesocket(server_socket);
+	close_socket(server_socket);
 
 	return 0;
 }

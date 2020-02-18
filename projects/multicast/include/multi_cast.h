@@ -2,12 +2,14 @@
 #define NETWORK_PROGRAMMING_MULTI_CAST_APP_H
 
 #include "common_net.h"
+#include "common_utils.h"
+#ifdef _WIN32
 #include "ws2tcpip.h"
+#endif
 
 #define MCASTADDR "234.5.6.7"
 #define MCASTPORT 25
-#define BUFSIZE 10
-#define BUFSIZE 10
+#define BUFSIZE 255
 #define DEFAULT_COUNT 50
 
 typedef struct tagGroupOptions{

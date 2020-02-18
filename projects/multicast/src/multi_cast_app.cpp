@@ -1,6 +1,6 @@
 #include "multi_cast.h"
 
-SOCKET gr_socket = INVALID_SOCKET;
+SOCKET gr_socket = -1;
 void exit_handler();
 
 int main(int argc, char **argv) {
@@ -11,8 +11,8 @@ int main(int argc, char **argv) {
 	struct ip_mreq mcast;
 
 	char recvbuf[BUFSIZE], sendbuf[BUFSIZE];
-	int len = sizeof(struct sockaddr_in), optval, ret;
-	DWORD i = 0;
+	socklen_t len = sizeof(struct sockaddr_in), optval, ret;
+    unsigned long i = 0;
 
     common_init_handler();
 
@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
 
     gr_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
 	if (gr_socket <= 0) {
-		printf("socket failed with: %d\n", WSAGetLastError());
+		printf("socket failed with: %d\n", get_last_error());
 		return -1;
 	}
 
@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
 	local.sin_port = htons(group_option.group_port);
 	local.sin_addr.s_addr = group_option.ip_interface;
 	if (bind(gr_socket, (struct sockaddr*)&local, sizeof(local))) {
-		printf("bind failed with: %d\n", WSAGetLastError());
+		printf("bind failed with: %d\n", get_last_error());
 		return -1;
 	}
 
@@ -70,11 +70,11 @@ int main(int argc, char **argv) {
 		}
 		else
 		{
-		    sprintf(sendbuf, "server 1: This is a test: %d", i);
+		    sprintf(sendbuf, "server 1: This is a test: %ld", i);
 			ret = sendto(gr_socket, (char*)sendbuf, strlen(sendbuf), 0,
                          (struct sockaddr*)&remote, sizeof(remote));
 			CHECK_IO(ret, -1, "sendto");
-			Sleep(500);
+            current_thread_sleep(500);
 		}
 	}
 
@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
 
 void exit_handler()
 {
-    if (gr_socket != INVALID_SOCKET)
+    if (gr_socket < 0)
     {
         close_socket(gr_socket);
     }

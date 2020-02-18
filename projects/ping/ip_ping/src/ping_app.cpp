@@ -4,19 +4,14 @@ void exit_handler();
 
 char *icmp_data = NULL, *recvbuf = NULL;
 
-SOCKET sock_raw=INVALID_SOCKET;
+SOCKET sock_raw=-1;
 
 int main(int argc, char **argv)
 {
     atexit(common_exit_handler);
     atexit(exit_handler);
 
-    WSADATA wsaData;
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
-    {
-        printf("WSAStartup() failed: %d", GetLastError());
-        return -1;
-    }
+    common_init_handler();
 
     char host[256] = "";
     PING_CMD_OPTIONS cmd_opts;
@@ -41,9 +36,9 @@ int main(int argc, char **argv)
 
     sock_raw = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
 
-    if (sock_raw == INVALID_SOCKET)
+    if (sock_raw == -1)
     {
-        printf("socket() failed: %d\n", WSAGetLastError());
+        printf("socket() failed: %d\n", get_last_error());
         return -1;
     }
 
@@ -83,7 +78,7 @@ int main(int argc, char **argv)
     {
         PICMP_HEADER icmp_hdr = (PICMP_HEADER)icmp_data;
         icmp_hdr->checksum = 0;
-        icmp_hdr->timestamp = GetTickCount();
+        icmp_hdr->timestamp = get_tick_count();
         icmp_hdr->seq = seq_no++;
         icmp_hdr->checksum = checksum((uint16_t*)icmp_data, cmd_opts.packet_size);
 
@@ -95,7 +90,7 @@ int main(int argc, char **argv)
         {
             printf("Wrote %d bytes\n", ret);
         }
-        int from_len = sizeof(sockaddr_in);
+        socklen_t from_len = sizeof(sockaddr_in);
         ret = recvfrom(sock_raw, recvbuf, MAX_PACKET_SIZE, 0,
                        (struct sockaddr*)&from, &from_len);
         CHECK_SOCK_TRANSMIT(ret, "recvfrom()");
@@ -109,7 +104,7 @@ int main(int argc, char **argv)
 
 void exit_handler()
 {
-    if (sock_raw != INVALID_SOCKET)
+    if (sock_raw > 0)
     {
         close_socket(sock_raw);
     }

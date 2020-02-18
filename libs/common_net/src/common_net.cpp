@@ -1,5 +1,29 @@
 #include "common_net.h"
 
+int common_init_handler()
+{
+#ifdef _WIN32
+    WSADATA ws;
+	CHECK_IO(WSAStartup(MAKEWORD(2, 2), &ws), -1, "Error init of WinSock2");
+	return 0;
+#elif __linux__
+    return 0;
+#else
+#error "Unsupported platform"
+#endif
+}
+
+void common_exit_handler() {
+#ifdef _WIN32
+    WSADATA ws;
+    CHECK_VOID_IO(WSACleanup(), "Error shutdown of WinSock2");
+#elif __linux__
+    return;
+#else
+#error "Unsupported platform"
+#endif
+}
+
 bool resolve_addr(char* str_addr, in_addr* baddr)
 {
     unsigned long ip = inet_addr(str_addr);
@@ -65,35 +89,11 @@ bool parse_cmd(int argc, char* argv[], char* host, short* port)
 
 }
 
-int common_init_handler()
-{
-#ifdef _WIN32
-    WSADATA ws;
-	CHECK_IO(WSAStartup(MAKEWORD(2, 2), &ws), -1, "Error init of WinSock2");
-	return 0;
-#elif LINUX
-	return 0;
-#else
- #error "Unsupported platform"
-#endif
-}
-
-void common_exit_handler() {
-#ifdef _WIN32
-    WSADATA ws;
-    CHECK_VOID_IO(WSACleanup(), "Error shutdown of WinSock2");
-#elif LINUX
-    return;
-#else
- #error "Unsupported platform"
-#endif
-}
-
 int close_socket(int socket) {
 #ifdef _WIN32
     CHECK_IO(closesocket(socket), -1, "Error close socket");
     return 0;
-#elif LINUX
+#elif __linux__
     return close(socket);
 #else
  #error "Unsupported platform"
@@ -102,4 +102,15 @@ int close_socket(int socket) {
 
 void error_msg(const char* msg) {
     printf("%s\n", msg);
+}
+
+sockaddr_in *init_inet_address(sockaddr_in *address, const char *host, const short port) {
+    if (!address || port <= 0)
+    {
+        return NULL;
+    }
+    address->sin_family = AF_INET;
+    address->sin_port = htons(port);
+    address->sin_addr.s_addr = (host && strlen(host) > 0) ? inet_addr(host) : htonl(INADDR_ANY);
+    return address;
 }

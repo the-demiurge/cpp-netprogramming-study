@@ -1,8 +1,6 @@
 #include "icmp.h"
-
-#ifdef _WIN32
-#include <windows.h>
-#endif // _WIN32
+#include "common_thread.h"
+#include "common_utils.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -11,9 +9,9 @@ void fill_icmp_data(char *icmp_data, int datasize)
 {
 	PICMP_HEADER picmp_hdr = (PICMP_HEADER)icmp_data;
 	picmp_hdr = (PICMP_HEADER)icmp_data;
-	picmp_hdr->type = ICMP_ECHO; // ����-����� ICMP
+	picmp_hdr->type = ICMP_ECHO; //
 	picmp_hdr->code = 0;
-	picmp_hdr->id = (uint16_t)GetCurrentProcessId();
+	picmp_hdr->id = (uint16_t)get_process_id();
 	picmp_hdr->checksum = 0;
 	picmp_hdr->seq = 0;
 
@@ -51,9 +49,9 @@ void decode_ip_opts(char *buf, int bytes)
 	for (i = 0; i < n - 1; ++i)
 	{
 		char delim = i + 1 < n - 1 ? '\t' : '\n';
-		inaddr.S_un.S_addr = ipopt->addr[i];
+		inaddr.s_addr = ipopt->addr[i];
 
-		host = gethostbyaddr((char *)&inaddr.S_un.S_addr, sizeof(inaddr.S_un.S_addr), AF_INET);
+		host = gethostbyaddr((char *)&inaddr.s_addr, sizeof(inaddr.s_addr), AF_INET);
 		if (host)
 		{
 			printf("(%-15s) %s", inet_ntoa(inaddr), host->h_name);
@@ -74,10 +72,7 @@ void decode_icmp_hdr(char *buf, int bytes, struct sockaddr_in *from)
 	PICMP_HEADER icmphdr = (PICMP_HEADER)(buf + iphdrlen);
 	char* str_from = inet_ntoa(from->sin_addr);
 
-	ulong_t tick =
-#ifdef _WIN32
-		GetTickCount();
-#endif // _WIN32
+	ulong_t tick = get_tick_count();
 
 	if (iphdrlen == MAX_IP_HDR_SIZE && !icmpcount)
 	{
@@ -95,10 +90,7 @@ void decode_icmp_hdr(char *buf, int bytes, struct sockaddr_in *from)
 		return;
 	}
 
-	uint16_t pid =
-#ifdef _WIN32
-	(uint16_t)GetCurrentProcessId();
-#endif // _WIN32
+	uint16_t pid = get_process_id();
 
 	if (icmphdr->id != pid)
 	{
@@ -108,7 +100,7 @@ void decode_icmp_hdr(char *buf, int bytes, struct sockaddr_in *from)
 
 	printf("\tReceived %d bytes from %s:", bytes, str_from);
 	printf("\tICMP_seq = %d", icmphdr->seq);
-	printf("\tTime: %d ms\n", tick - icmphdr->timestamp);
+	printf("\tTime: %ld ms\n", tick - icmphdr->timestamp);
 
 	icmpcount++;
 }

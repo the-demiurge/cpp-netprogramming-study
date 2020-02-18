@@ -20,13 +20,7 @@ int main(int argc, char *argv[]) {
     }
 
     sockaddr_in server_addr;
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(port);
-    if (parse_cmd && strlen(host) > 0) {
-        server_addr.sin_addr.s_addr = inet_addr(host);
-    } else {
-        server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    }
+    init_inet_address(&server_addr, host, port);
 
     //Bind socket to the address on the server
     if (bind(server_socket, (sockaddr *) &server_addr, sizeof(sockaddr))) {
@@ -46,7 +40,7 @@ int main(int argc, char *argv[]) {
     while (true) {
         sockaddr_in incom_addr;
         memset(&incom_addr, 0, sizeof(incom_addr));
-        int len = sizeof(incom_addr);
+        socklen_t len = sizeof(incom_addr);
         SOCKET socket = accept(server_socket, (sockaddr *) &incom_addr, &len);
         if (socket <= 0) {
             error_msg("Can't accept connection");
@@ -54,7 +48,7 @@ int main(int argc, char *argv[]) {
         }
         handle_connection(socket, &incom_addr);
     }
-    closesocket(server_socket);
+    close_socket(server_socket);
 
     return 0;
 }

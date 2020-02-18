@@ -1,11 +1,11 @@
 #include "multi_thread_server.h"
 
-void handle_connection(void* psocket) {
+THREAD_VOID handle_connection(void* psocket) {
 	CHECK_VOID_IO(psocket, "Empty connection thread data");
 	SOCKET socket;
-	CHECK_VOID_IO((socket = (SOCKET)psocket) > 0, "Invalid connection thread data");
+	CHECK_VOID_IO((socket = *((SOCKET*)psocket)) > 0, "Invalid connection thread data");
 	sockaddr_in addr;
-	int addr_len = sizeof(addr);
+	socklen_t addr_len = sizeof(addr);
 	CHECK_VOID_IO(!getpeername(socket, (sockaddr*)&addr, &addr_len), "Error retrieving peer info");
 	char* str_in_addr = inet_ntoa(addr.sin_addr);
 	printf("[%s:%d]>>%s\n", str_in_addr, ntohs(addr.sin_port), "Establish new connection");
@@ -19,6 +19,6 @@ void handle_connection(void* psocket) {
 			break;
 		}
 	}
-	closesocket(socket);
+	close_socket(socket);
 	printf("[%s]>>%s", str_in_addr, "Close incomming connection");
 }

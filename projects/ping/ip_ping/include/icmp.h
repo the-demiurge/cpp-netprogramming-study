@@ -1,5 +1,8 @@
 #ifndef __ICMP__
 #define __ICMP__
+
+#include "common_net.h"
+
 #define IP_RECORD_ROUTE 0x7
 
 #define ICMP_ECHO 8

@@ -13,6 +13,6 @@ void handle_connection(SOCKET socket, sockaddr_in* addr) {
             break;
         }
     }
-    closesocket(socket);
+    close_socket(socket);
     printf("[%s]>>%s", str_in_addr, "Close incomming connection");
 }

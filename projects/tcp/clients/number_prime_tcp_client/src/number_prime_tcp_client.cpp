@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
 		printf("%s", resp);
 	}
 
-	closesocket(client_socket);
+	close_socket(client_socket);
 
 	return 0;
 }

@@ -2,8 +2,14 @@
 #define __PING_H__
 
 #include "common_net.h"
+#include "common_utils.h"
 #include "icmp.h"
+#ifdef _WIN32
 #include "ws2tcpip.h"
+#elif __linux__
+#else
+#error "Unsupported platform"
+#endif
 
 typedef struct _ping_cmd_opts {
     uint32_t packet_size;
@@ -22,21 +28,22 @@ typedef struct _ping_cmd_opts {
 }
 
 #define CHECK_SOCK_OPT(ret, option)\
-if (ret == SOCKET_ERROR)\
+if (ret < 0)\
 {\
-	printf("setsockopt(%s) failed: %d\n", option, WSAGetLastError());\
+	printf("setsockopt(%s) failed: %d\n", option, get_last_error());\
 	return -1;\
 }
 
 #define CHECK_SOCK_TRANSMIT(ret, transmit)\
-if (ret == SOCKET_ERROR)\
+if (ret < 0)\
 {\
-	if (WSAGetLastError() == WSAETIMEDOUT)\
+    ERROR_CODE_TYPE code = get_last_error(); \
+	if (code == ERROR_TIMEOUT)\
 	{\
 		printf("timed out\n");\
 		continue;\
 	}\
-	printf("%s failed: %d\n", transmit, WSAGetLastError());\
+	printf("%s failed: %d\n", transmit, code);\
 	return -1;\
 }
 

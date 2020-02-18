@@ -1,0 +1,2 @@
+add_subdirectory(simple_tcp_client)
+add_subdirectory(number_prime_tcp_client)

@@ -25,10 +25,8 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	sockaddr_in server_addr;
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_port = htons(port);
-	server_addr.sin_addr.s_addr = inet_addr(host);
+	struct sockaddr_in server_addr;
+	init_inet_address(&server_addr, host, port);
 
 	//Connect to the server
 	if (connect(client_socket, (sockaddr*)&server_addr, sizeof(sockaddr))) {

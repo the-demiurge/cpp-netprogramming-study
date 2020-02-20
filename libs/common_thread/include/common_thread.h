@@ -6,7 +6,7 @@
 #include<windows.h>
 
 typedef HANDLE THREAD_HANDLE;
-typedef HANDLE PROCESS_ID;
+typedef DWORD PROCESS_ID;
 
 #define THREAD_VOID void
 

@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
 		{
 		    ret = recvfrom(gr_socket, recvbuf, BUFSIZE, 0,
                            (struct sockaddr *)&from, &len);
-			CHECK_IO(ret, -1, "recvfrom");
+			CHECK_IO(ret, -1, "Error receive data in group\n");
 			recvbuf[ret] = 0;
 			printf("RECV: '%s' from <%s>\n", recvbuf,
 				inet_ntoa(from.sin_addr));
@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
 		    sprintf(sendbuf, "server 1: This is a test: %ld", i);
 			ret = sendto(gr_socket, (char*)sendbuf, strlen(sendbuf), 0,
                          (struct sockaddr*)&remote, sizeof(remote));
-			CHECK_IO(ret, -1, "sendto");
+			CHECK_IO(ret, -1, "Error send data in group\n");
             current_thread_sleep(500);
 		}
 	}

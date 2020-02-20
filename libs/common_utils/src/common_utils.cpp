@@ -28,7 +28,8 @@ ERROR_CODE_TYPE get_last_error() {
 
 int current_thread_sleep(unsigned int millis) {
 #ifdef _WIN32
-    return Sleep(millis);
+    Sleep(millis);
+    return 0;
 #elif __linux__
     return usleep(millis * 1000);
 #else

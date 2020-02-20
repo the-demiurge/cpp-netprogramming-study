@@ -4,7 +4,7 @@ int common_init_handler()
 {
 #ifdef _WIN32
     WSADATA ws;
-	CHECK_IO(WSAStartup(MAKEWORD(2, 2), &ws), -1, "Error init of WinSock2");
+	CHECK_IO(WSAStartup(MAKEWORD(2, 2), &ws) == 0, -1, "Error init of WinSock2\n");
 	return 0;
 #elif __linux__
     return 0;
@@ -15,8 +15,7 @@ int common_init_handler()
 
 void common_exit_handler() {
 #ifdef _WIN32
-    WSADATA ws;
-    CHECK_VOID_IO(WSACleanup(), "Error shutdown of WinSock2");
+    CHECK_VOID_IO(WSACleanup() == 0, "Error shutdown of WinSock2\n");
 #elif __linux__
     return;
 #else
@@ -91,7 +90,7 @@ bool parse_cmd(int argc, char* argv[], char* host, short* port)
 
 int close_socket(int socket) {
 #ifdef _WIN32
-    CHECK_IO(closesocket(socket), -1, "Error close socket");
+    CHECK_IO(closesocket(socket) == 0, -1, "Error close socket\n");
     return 0;
 #elif __linux__
     return close(socket);

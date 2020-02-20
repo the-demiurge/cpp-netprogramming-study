@@ -11,7 +11,7 @@
 #include <winsock2.h>
 #include <windows.h>
 
-#define int socklen_t
+typedef int socklen_t;
 
 #define VOID_DEFAULT_RESULT
 

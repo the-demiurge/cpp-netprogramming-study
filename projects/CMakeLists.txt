@@ -8,5 +8,5 @@ endif()
 
 add_subdirectory(nslookup)
 add_subdirectory(tcp)
+add_subdirectory(udp)
 add_subdirectory(ping)
-add_subdirectory(multicast)

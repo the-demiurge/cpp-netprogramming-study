@@ -4,9 +4,10 @@ void exit_handler();
 
 SOCKET receiver_socket;
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {	
     atexit(common_exit_handler);
-    atexit(exit_handler);
+	atexit(exit_handler);
+
     short port = DEFAULT_PORT;
     char host[128] = "";
     bool parse_cmd_result = parse_cmd(argc, argv, host, &port);
@@ -33,7 +34,6 @@ int main(int argc, char *argv[]) {
     printf("Receiver available on the port %d\n", port);
 
     while (process_receiv_data(receiver_socket)) {}
-    close_socket(receiver_socket);
 
     return 0;
 }

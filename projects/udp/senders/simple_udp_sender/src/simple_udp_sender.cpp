@@ -5,8 +5,9 @@ void exit_handler();
 SOCKET client_socket;
 int main(int argc, char* argv[])
 {
-    atexit(common_exit_handler);
-    atexit(exit_handler);
+	atexit(common_exit_handler);
+	atexit(exit_handler);
+
 	short port;
 	char host[128] = "";
 	bool parse_cmd_result = parse_cmd(argc, argv, host, &port);
@@ -40,8 +41,6 @@ int main(int argc, char* argv[])
 		error_msg(err_msg);
 		return -1;
 	}
-
-	close_socket(client_socket);
 
 	return 0;
 }

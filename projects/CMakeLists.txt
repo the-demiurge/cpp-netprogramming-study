@@ -1,0 +1,12 @@
+list(APPEND COMMON_DEPENDENCIES common_utils common_net common_thread)
+
+if (WIN32)
+    LIST(APPEND COMMON_DEPENDENCIES wsock32 ws2_32)
+elseif(LINUX)
+    LIST(APPEND COMMON_DEPENDENCIES pthread)
+endif()
+
+add_subdirectory(nslookup)
+add_subdirectory(tcp)
+add_subdirectory(udp)
+add_subdirectory(ping)

@@ -25,9 +25,9 @@ void common_exit_handler() {
 
 bool resolve_addr(char* str_addr, in_addr* baddr)
 {
-    unsigned long ip = inet_addr(str_addr);
-    if (ip > 0) {
-        memcpy(baddr, &ip, sizeof(unsigned long));
+    long ip = inet_addr(str_addr);
+	if (ip > 0) {
+		baddr->s_addr = ip;
         return true;
     }
     else {
@@ -37,7 +37,8 @@ bool resolve_addr(char* str_addr, in_addr* baddr)
             fprintf(stderr, "Error host %s", str_addr);
             return false;
         }
-        memcpy(baddr, hp->h_addr_list, hp->h_length);
+		
+		memcpy(&(baddr->s_addr), hp->h_addr_list[0], hp->h_length);
         return true;
     }
 }

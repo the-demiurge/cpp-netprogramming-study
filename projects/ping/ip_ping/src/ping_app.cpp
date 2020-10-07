@@ -8,8 +8,8 @@ SOCKET sock_raw=-1;
 
 int main(int argc, char **argv)
 {
-    atexit(common_exit_handler);
-    atexit(exit_handler);
+	atexit(common_exit_handler);
+	atexit(exit_handler);
 
     common_init_handler();
 
@@ -26,7 +26,8 @@ int main(int argc, char **argv)
 
     struct sockaddr_in dest, from;
     int ret;
-    if (resolve_addr(host, &dest.sin_addr))
+
+    if (!resolve_addr(host, &(dest.sin_addr)))
     {
         printf("Can't resolve host %s\n", host);
         return -1;
@@ -38,7 +39,7 @@ int main(int argc, char **argv)
 
     if (sock_raw == -1)
     {
-        printf("socket() failed: %d\n", get_last_error());
+        printf("socket failed: %d\n", get_last_error());
         return -1;
     }
 

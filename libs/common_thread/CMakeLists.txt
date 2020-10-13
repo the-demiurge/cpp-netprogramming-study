@@ -4,7 +4,7 @@ file(GLOB SRC src/*.cpp src/*.cxx)
 
 add_library(${PROJECT_NAME} ${SRC})
 
-if (LINUX)
+if (UNIX)
  list(APPEND ADDITIONALS pthread)
 else()
  list(APPEND ADDITIONALS "")

@@ -1,10 +1,10 @@
-#include "single_thread_udp_receiver.h"
+#include "word_udp_receiver.h"
 
 void exit_handler();
 
 SOCKET receiver_socket;
 
-int main(int argc, char *argv[]) {	
+int main(int argc, char *argv[]) {
     atexit(common_exit_handler);
 	atexit(exit_handler);
 
@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    sockaddr_in receiver_addr;
+    struct sockaddr_in receiver_addr;
     init_inet_address(&receiver_addr, host, port);
 
 	//Bind socket to the address on the server

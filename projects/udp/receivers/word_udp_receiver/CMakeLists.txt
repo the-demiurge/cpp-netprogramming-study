@@ -1,4 +1,4 @@
-project(simple_udp_sender)
+project(word_udp_receiver)
 
 include_directories(include)
 file(GLOB SRC src/*.cpp src/*.cxx)

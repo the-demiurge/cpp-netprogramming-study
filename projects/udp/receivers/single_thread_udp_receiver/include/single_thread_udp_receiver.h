@@ -5,5 +5,5 @@
 
 #define DEFAULT_PORT 6557
 
-bool process_receiv_data(SOCKET);
+bool process_receive_data(SOCKET socket);
 #endif //NETWORK_PROGRAMMING_SINGLE_THREAD_UDP_RECEIVER_H

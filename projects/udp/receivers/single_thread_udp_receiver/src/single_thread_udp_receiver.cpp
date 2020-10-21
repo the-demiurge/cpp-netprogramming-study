@@ -1,6 +1,6 @@
 #include "single_thread_udp_receiver.h"
 
-bool process_receiv_data(SOCKET socket) {
+bool process_receive_data(SOCKET socket) {
 	sockaddr_in incom_addr;
 	memset(&incom_addr, 0, sizeof(incom_addr));
 	socklen_t len = sizeof(incom_addr);

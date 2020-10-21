@@ -1,1 +1,2 @@
 add_subdirectory(simple_udp_sender)
+add_subdirectory(word_udp_sender)

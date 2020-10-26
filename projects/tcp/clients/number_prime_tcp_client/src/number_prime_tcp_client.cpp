@@ -3,6 +3,7 @@
 void exit_handler();
 
 SOCKET client_socket;
+
 int main(int argc, char* argv[])
 {
 	atexit(common_exit_handler);
@@ -25,7 +26,7 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	sockaddr_in server_addr;
+	struct sockaddr_in server_addr;
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(port);
 	server_addr.sin_addr.s_addr = inet_addr(host);
@@ -42,7 +43,6 @@ int main(int argc, char* argv[])
 
 	int r;
 	printf("%s", "Enter a number to check for its prime:");
-	//fgets(msg, sizeof(msg), stdin);
 	if (scanf("%d", &r) != 1)
 	{
 		printf("Invalid input\n");

@@ -4,15 +4,11 @@ SOCKET gr_socket = -1;
 void exit_handler();
 
 int main(int argc, char **argv) {
+    atexit(exit_handler);
 	atexit(common_exit_handler);
-	atexit(exit_handler);
 
-	struct sockaddr_in local, remote, from;
+	struct sockaddr_in local, remote;
 	struct ip_mreq mcast;
-
-	char recvbuf[BUFSIZE], sendbuf[BUFSIZE];
-	socklen_t len = sizeof(struct sockaddr_in), optval, ret;
-    unsigned long i = 0;
 
     common_init_handler();
 
@@ -26,61 +22,44 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 
-	local.sin_family = AF_INET;
-	local.sin_port = htons(group_option.group_port);
-	local.sin_addr.s_addr = group_option.ip_interface;
-	if (bind(gr_socket, (struct sockaddr*)&local, sizeof(local))) {
-		printf("bind failed with: %d\n", get_last_error());
-		return -1;
-	}
+	CHECK_SET_OPT(set_reuse_address(gr_socket, true), "ERROR REUSE ADDRESS");
 
-	remote.sin_family = AF_INET;
-	remote.sin_port = htons(group_option.group_port);
-	remote.sin_addr.s_addr = group_option.group_ip_interface;
+	init_inet_address(&local, group_option.ip_interface, group_option.group_port);
 
-	mcast.imr_multiaddr.s_addr = group_option.group_ip_interface;
-	mcast.imr_interface.s_addr = group_option.ip_interface;
+	CHECK_IO(bind_socket_to(gr_socket, &local) == 0, -1, "ERROR BIND LOCAL");
 
-	int opt_ret = setsockopt(gr_socket, IPPROTO_IP, IP_ADD_MEMBERSHIP,
-                             (char *)&mcast, sizeof(mcast));
+    init_inet_address(&remote, group_option.group_ip_interface, group_option.group_port);
 
-	CHECK_SET_OPT(opt_ret, "IP_ADD_MEMBERSHIP");
-	optval = 8;
-	opt_ret = setsockopt(gr_socket, IPPROTO_IP, IP_MULTICAST_TTL,
-                         (char*)&optval, sizeof(int));
-	CHECK_SET_OPT(opt_ret, "IP_MULTICAST_TTL");
+    init_group(group_option.ip_interface, group_option.group_ip_interface, &mcast);
+
+    CHECK_SET_OPT(join_group(gr_socket, &mcast), "ERROR JOIN TO GROUP");
+	CHECK_SET_OPT(set_group_ttl(gr_socket, 8), "ERROR SET TTL");
 
 	if (group_option.is_loop_back) {
-		optval = 0;
-		opt_ret = setsockopt(gr_socket, IPPROTO_IP, IP_MULTICAST_LOOP,
-                             (char *)&optval, sizeof(optval));
-		CHECK_SET_OPT(opt_ret, "IP_MULTICAST_LOOP");
+        CHECK_SET_OPT(set_loopback(gr_socket, 0), "ERROR SET LOOP");
 	}
 
-	for (i = 0; i < group_option.repeat_count; ++i)
-	{
-		if (!group_option.is_sender) //
-		{
-		    ret = recvfrom(gr_socket, recvbuf, BUFSIZE, 0,
-                           (struct sockaddr *)&from, &len);
-			CHECK_IO(ret, -1, "Error receive data in group\n");
-			recvbuf[ret] = 0;
-			printf("RECV: '%s' from <%s>\n", recvbuf,
-				inet_ntoa(from.sin_addr));
-		}
-		else
-		{
-		    sprintf(sendbuf, "server 1: This is a test: %ld", i);
-			ret = sendto(gr_socket, (char*)sendbuf, strlen(sendbuf), 0,
-                         (struct sockaddr*)&remote, sizeof(remote));
-			CHECK_IO(ret, -1, "Error send data in group\n");
-            current_thread_sleep(500);
-		}
-	}
+    if (group_option.is_receiver)
+    {
+        set_recv_timeout_ms(gr_socket, group_option.receive_timeout);
 
-	opt_ret = setsockopt(gr_socket, IPPROTO_IP, IP_DROP_MEMBERSHIP,
-                         (char *)&mcast, sizeof(mcast));
-	CHECK_SET_OPT(opt_ret, "IP_DROP_MEMBERSHIP");
+        while (true) {
+            group_receiver(&group_option, gr_socket);
+            if (get_last_error() == ERROR_TIMEOUT) {
+                printf("Continue (Y/any key)?\n");
+                if (toupper(getchar()) != 'Y') {
+                    break;
+                }
+            }
+        }
+
+    } else if (group_option.is_sender)
+    {
+        group_sender(&group_option, gr_socket, &remote);
+    }
+
+	CHECK_SET_OPT(leave_group(gr_socket, &mcast), "LEAVE GROUP");
+
 	return 0;
 }
 

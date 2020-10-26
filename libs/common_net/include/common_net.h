@@ -36,17 +36,19 @@ void common_exit_handler();
 
 int close_socket(int socket);
 
-bool resolve_addr(char*, in_addr*);
+bool resolve_addr(const char*, in_addr*);
 bool parse_cmd(int argc, char* argv[], char* host, short* port);
 
 void error_msg(const char*);
 
-sockaddr_in* init_inet_address(sockaddr_in *address, const char*, const short);
+sockaddr_in* init_inet_address(struct sockaddr_in *address, const char*, const short);
+int bind_socket_to(SOCKET, struct sockaddr_in*);
 
 #define CHECK_IO(io, err_code, ...) \
 if (!(io)) \
 { \
 	printf(__VA_ARGS__); \
+	printf("\n"); \
 	return err_code; \
 }
 
@@ -59,7 +61,7 @@ if (!(io))\
 
 #define CHECK_SET_OPT(opt_ret, err_msg)\
 {\
-  if ((opt_ret) < 0)\
+  if ((opt_ret) != 0)\
   {\
     printf("setsockopt(%s) failed with: %d\n",\
            err_msg, get_last_error());\
@@ -67,4 +69,14 @@ if (!(io))\
   }\
 }
 
+int set_reuse_address(SOCKET, int);
+int set_recv_timeout_ms(SOCKET socket, int millis);
+int set_group_loopback(SOCKET, int);
+int set_group_address(SOCKET, const char *);
+int set_group_ttl(SOCKET, int);
+int set_loopback(SOCKET, int);
+
+int init_group(const char*, const char*, struct ip_mreq*);
+int join_group(SOCKET, struct ip_mreq*);
+int leave_group(SOCKET, struct ip_mreq*);
 #endif //NETWORK_PROGRAMMING_COMMON_NET_H

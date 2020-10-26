@@ -23,7 +23,7 @@ void common_exit_handler() {
 #endif
 }
 
-bool resolve_addr(char* str_addr, in_addr* baddr)
+bool resolve_addr(const char* str_addr, in_addr* baddr)
 {
     long ip = inet_addr(str_addr);
 	if (ip > 0) {
@@ -104,13 +104,103 @@ void error_msg(const char* msg) {
     printf("%s\n", msg);
 }
 
-sockaddr_in *init_inet_address(sockaddr_in *address, const char *host, const short port) {
+struct sockaddr_in *init_inet_address(struct sockaddr_in *address, const char *host, const short port) {
     if (!address || port <= 0)
     {
         return NULL;
     }
     address->sin_family = AF_INET;
     address->sin_port = htons(port);
-    address->sin_addr.s_addr = (host && strlen(host) > 0) ? inet_addr(host) : htonl(INADDR_ANY);
+    if (host && strlen(host) > 0) {
+        struct in_addr addr;
+        resolve_addr(host, &addr);
+        address->sin_addr.s_addr = addr.s_addr;
+    } else {
+        address->sin_addr.s_addr = htonl(INADDR_ANY);
+    }
+
     return address;
+}
+
+int set_reuse_address(SOCKET socket, int reuse) {
+    return setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (char*)&reuse, sizeof(int));
+}
+
+int set_group_loopback(SOCKET socket, int loopback) {
+    return setsockopt(socket, IPPROTO_IP, IP_MULTICAST_LOOP, (char*)&loopback, sizeof(int));
+}
+
+int set_group_address(SOCKET socket, const char * address) {
+    struct in_addr addr;
+    memset(&addr, 0, sizeof(addr));
+    resolve_addr((char*)address, &addr);
+    return setsockopt(socket, IPPROTO_IP, IP_MULTICAST_IF, (char*)&addr, sizeof(addr));
+}
+
+int init_group(const char * local_addr, const char * group_addr, struct ip_mreq * group) {
+    struct in_addr addr;
+
+    if (local_addr && strlen(local_addr) > 0) {
+        memset(&addr, 0, sizeof(addr));
+        if (!resolve_addr((char*)local_addr, &addr)) {
+            return -1;
+        }
+        group->imr_interface.s_addr = addr.s_addr;
+    } else {
+        group->imr_interface.s_addr = htonl(INADDR_ANY);
+    }
+
+    if (group_addr && strlen(group_addr) > 0) {
+        memset(&addr, 0, sizeof(addr));
+        if (!resolve_addr((char*)group_addr, &addr)) {
+            return -1;
+        }
+        group->imr_multiaddr.s_addr = addr.s_addr;
+    } else {
+        return -1;
+    }
+
+    return 0;
+}
+
+int join_group(SOCKET socket, struct ip_mreq * group) {
+    if (!group) {
+        return -1;
+    }
+    return setsockopt(socket, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)group, sizeof(ip_mreq));
+}
+
+int leave_group(SOCKET socket, struct ip_mreq * group) {
+    if (!group) {
+        return -1;
+    }
+    return setsockopt(socket, IPPROTO_IP, IP_DROP_MEMBERSHIP, (char*)group, sizeof(ip_mreq));
+}
+
+int set_group_ttl(SOCKET socket, int ttl) {
+    return setsockopt(socket, IPPROTO_IP, IP_MULTICAST_TTL, (char*)&ttl, sizeof(int));
+}
+
+int set_loopback(SOCKET socket, int turn_on) {
+    return setsockopt(socket, IPPROTO_IP, IP_MULTICAST_LOOP, (char *)&turn_on, sizeof(int));
+}
+
+int bind_socket_to(SOCKET socket, struct sockaddr_in * sockaddr) {
+    return bind(socket, (struct sockaddr*)sockaddr, sizeof(sockaddr_in));
+}
+
+int set_recv_timeout_ms(SOCKET socket, int millis) {
+    if (millis <= 0) {
+        return 0;
+    }
+#ifdef _WIN32
+    DWORD timeout = millis * 1000;
+#elif __linux__
+    struct timeval timeout;
+    timeout.tv_sec = millis / 1000;
+    timeout.tv_usec = (millis % 1000) * 1000;
+#else
+  #error "Unsupported platform for setsockopt"
+#endif
+    return setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
 }

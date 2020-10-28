@@ -1,7 +1,7 @@
 #include "word_udp_sender.h"
 void exit_handler();
 
-SOCKET client_socket;
+SOCKET sender_socket;
 int main(int argc, char* argv[])
 {
 	atexit(common_exit_handler);
@@ -19,14 +19,14 @@ int main(int argc, char* argv[])
 
     common_init_handler();
 
-	client_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	if (client_socket <= 0) {
+    sender_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	if (sender_socket <= 0) {
 		error_msg("Can't create socket");
 		return -1;
 	}
 
-	struct sockaddr_in server_addr;
-	init_inet_address(&server_addr, host, port);
+	struct sockaddr_in receiver_address;
+	init_inet_address(&receiver_address, host, port);
 
 	while(true) {
         printf("%s", "Enter msg (Quit to break):");
@@ -37,9 +37,9 @@ int main(int argc, char* argv[])
         if (!strcasecmp(msgPacket.data, "Quit")) {
             break;
         }
-        unsigned int len = sizeof(server_addr);
+        unsigned int len = sizeof(receiver_address);
 
-        int sc = sendto(client_socket, (char*)&msgPacket, sizeof(msgPacket), 0, (sockaddr*)&server_addr, len);
+        int sc = sendto(sender_socket, (char*)&msgPacket, sizeof(msgPacket), 0, (sockaddr*)&receiver_address, len);
         if (sc <= 0) {
             char err_msg[128] = "";
             sprintf(err_msg, "Can't send data to the %s:%d", host, port);
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
         }
 
         struct WordPacket wordPacket {"", 0};
-        sc = recvfrom(client_socket, (char*)&wordPacket, sizeof(wordPacket), 0, (sockaddr*)&server_addr, &len);
+        sc = recvfrom(sender_socket, (char*)&wordPacket, sizeof(wordPacket), 0, (sockaddr*)&receiver_address, &len);
         if (sc <= 0) {
             char err_msg[128] = "";
             sprintf(err_msg, "Can't receive data");
@@ -63,5 +63,5 @@ int main(int argc, char* argv[])
 
 void exit_handler()
 {
-	close_socket(client_socket);
+	close_socket(sender_socket);
 }

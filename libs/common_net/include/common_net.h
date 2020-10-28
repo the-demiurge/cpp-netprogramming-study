@@ -10,7 +10,8 @@
 #include <tchar.h>
 #include <winsock2.h>
 #include <windows.h>
-
+#include <windows.h>
+#include <ws2tcpip.h>
 typedef int socklen_t;
 
 #define VOID_DEFAULT_RESULT

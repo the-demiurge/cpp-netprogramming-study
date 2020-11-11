@@ -30,4 +30,8 @@ THREAD_HANDLE create_thread(thread_function, void*);
 
 PROCESS_ID get_process_id();
 
+void wait_thread(THREAD_HANDLE);
+
+void wait_thread(THREAD_HANDLE*, int size);
+
 #endif //NETWORK_PROGRAMMING_COMMON_THREAD_H

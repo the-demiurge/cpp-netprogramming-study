@@ -17,17 +17,21 @@ int main(int argc, char* argv[])
 	const int count_clients = 3;
 
 	char messages[count_clients][50] = {"Message aSFdfgetgr", "Message 3245342", "Message 31534"};
+    CLIENT_OPTIONS options[count_clients];
 	for (int i = 0; i < count_clients; ++i)
 	{
-	    CLIENT_OPTIONS client_options;
-        strcpy(client_options.server_host, server_host);
-        client_options.server_port = server_port;
-        strcpy(client_options.data, messages[i]);
+	    PCLIENT_OPTIONS poptions = &options[i];
+        strcpy(poptions->server_host, server_host);
+        poptions->server_port = server_port;
+        strcpy(poptions->data, messages[i]);
 
+        printf("Options was set\n");
 		connection_pool.push_back(
-			create_thread(process_connection, (PCLIENT_OPTIONS)&client_options)
+			create_thread(process_connection, poptions)
 		);
 	}
+
+    wait_thread(connection_pool.data(), connection_pool.size());
 
 	return 0;
 }

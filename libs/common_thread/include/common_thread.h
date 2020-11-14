@@ -8,7 +8,7 @@
 typedef HANDLE THREAD_HANDLE;
 typedef DWORD PROCESS_ID;
 
-#define THREAD_VOID void
+#define THREAD_RESULT DWORD
 
 #elif __linux__
 
@@ -20,13 +20,14 @@ typedef DWORD PROCESS_ID;
 typedef int THREAD_HANDLE;
 typedef pid_t PROCESS_ID;
 
-#define THREAD_VOID void*
+#define THREAD_RESULT void*
 
 #endif
 
-typedef THREAD_VOID (*thread_function)(void*);
+typedef THREAD_RESULT (*thread_function)(void*);
+typedef LPVOID THREAD_PARAM;
 
-THREAD_HANDLE create_thread(thread_function, void*);
+THREAD_HANDLE create_thread(thread_function, THREAD_PARAM);
 
 PROCESS_ID get_process_id();
 

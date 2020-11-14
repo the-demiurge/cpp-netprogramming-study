@@ -14,5 +14,5 @@ typedef struct tagClientOptions {
     char data[255];
 } CLIENT_OPTIONS, *PCLIENT_OPTIONS;
 
-THREAD_VOID process_connection(void*);
+THREAD_RESULT process_connection(void*);
 #endif //NETWORK_PROGRAMMING_MULTI_THREAD_CLIENT_H

@@ -1,9 +1,9 @@
 #include "common_thread.h"
 
-THREAD_HANDLE create_thread(thread_function func, void *params) {
+THREAD_HANDLE create_thread(thread_function func, THREAD_PARAM params) {
 #ifdef _WIN32
     DWORD hThreadId;
-	return CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)func, (LPVOID)param, 0, &hThreadId);
+	return CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)func, params, 0, &hThreadId);
 #elif __linux__
     return pthread_create(NULL, NULL, func, params);
 #else

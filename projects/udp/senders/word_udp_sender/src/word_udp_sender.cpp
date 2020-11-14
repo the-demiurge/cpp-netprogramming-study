@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
         if (!strcasecmp(msgPacket.data, "Quit")) {
             break;
         }
-        unsigned int len = sizeof(receiver_address);
+        socklen_t len = sizeof(receiver_address);
 
         int sc = sendto(sender_socket, (char*)&msgPacket, sizeof(msgPacket), 0, (sockaddr*)&receiver_address, len);
         if (sc <= 0) {

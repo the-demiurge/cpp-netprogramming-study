@@ -7,7 +7,9 @@
 
 typedef DWORD ERROR_CODE_TYPE;
 
-#define ERROR_TIMEOUT WSAETIMEDOUT
+#ifndef ERROR_TIMEOUT
+ #define ERROR_TIMEOUT WSAETIMEDOUT
+#endif
 
 #elif __linux__
 

@@ -1,12 +1,12 @@
 #include "multi_thread_client.h"
 
-THREAD_VOID process_connection(void* data) {
+THREAD_RESULT process_connection(void* data) {
     PCLIENT_OPTIONS pclient_options = (PCLIENT_OPTIONS)data;
 
     printf("Opt1 %p", pclient_options);
     printf("Opt1 %s", pclient_options->data);
     SOCKET client_socket = -1;
-    CHECK_VOID_IO((client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) > 0, "Can't create client socket\n");
+    CHECK_IO((client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) > 0, -1, "Can't create client socket\n");
 
     printf("Socket creation\n");
     sockaddr_in server_addr;
@@ -14,7 +14,7 @@ THREAD_VOID process_connection(void* data) {
     printf("Address inited\n");
 
     //Connect socket to the address on the server
-    CHECK_VOID_IO(connect(client_socket, (sockaddr*)&server_addr, sizeof(sockaddr)) == 0, "Can't connect socket to server %s:%d\n", pclient_options->server_host, pclient_options->server_port);
+    CHECK_IO(connect(client_socket, (sockaddr*)&server_addr, sizeof(sockaddr)) == 0, -1, "Can't connect socket to server %s:%d\n", pclient_options->server_host, pclient_options->server_port);
 
     printf("Connected\n");
 
@@ -26,4 +26,5 @@ THREAD_VOID process_connection(void* data) {
     }
 
     close_socket(client_socket);
+    return 0;
 }

@@ -3,7 +3,7 @@
 bool process_receive_data(SOCKET socket) {
     struct sockaddr_in incom_addr;
     memset(&incom_addr, 0, sizeof(incom_addr));
-    unsigned int len = sizeof(incom_addr);
+    socklen_t len = sizeof(incom_addr);
     struct MessagePacket msgPacket {""};
     int cnt = recvfrom(socket, (char*)&msgPacket, sizeof(msgPacket), 0, (sockaddr*)&incom_addr, &len);
 

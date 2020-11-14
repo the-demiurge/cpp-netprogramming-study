@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 		SOCKET socket;
 		CHECK_IO((socket = accept(server_socket, (sockaddr*)&incom_addr, &len)) > 0, -1, "Can't accept connection\n");
 		connection_pool.push_back(
-			create_thread(handle_connection, (SOCKET*)socket)
+			create_thread(handle_connection, &socket)
 		);
 	}
 

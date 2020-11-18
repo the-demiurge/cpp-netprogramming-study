@@ -21,11 +21,11 @@ PROCESS_ID get_process_id() {
 #endif
 }
 
-void wait_thread(THREAD_HANDLE handle) {
+THREAD_ID get_thread_id() {
 #ifdef _WIN32
-    WaitForSingleObject(handle, INFINITE);
+    return GetCurrentThreadId();
 #elif __linux__
-    pthread_join(handle, NULL);
+    return pthread_self();
 #else
 #error "Unsupported platform"
 #endif

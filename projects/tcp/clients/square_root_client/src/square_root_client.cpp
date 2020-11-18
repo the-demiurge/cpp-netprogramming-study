@@ -45,7 +45,6 @@ int main(int argc, char* argv[])
 	SquareRootResponse response;
 	{
 		printf("%s", "Enter a, b, c:");
-		//fgets(msg, sizeof(msg), stdin);
 		scanf("%lf %lf %lf", &request.a, &request.b, &request.c);
 		int sc = send(client_socket, (char*)&request, sizeof(request), 0);
 		if (sc <= 0) {

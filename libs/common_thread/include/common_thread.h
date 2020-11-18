@@ -7,6 +7,7 @@
 
 typedef HANDLE THREAD_HANDLE;
 typedef DWORD PROCESS_ID;
+typedef DWORD THREAD_ID;
 
 #define THREAD_RESULT DWORD
 
@@ -19,6 +20,7 @@ typedef DWORD PROCESS_ID;
 
 typedef int THREAD_HANDLE;
 typedef pid_t PROCESS_ID;
+typedef pthread_t THREAD_ID;
 
 #define THREAD_RESULT void*
 
@@ -30,6 +32,7 @@ typedef LPVOID THREAD_PARAM;
 THREAD_HANDLE create_thread(thread_function, THREAD_PARAM);
 
 PROCESS_ID get_process_id();
+THREAD_ID get_thread_id();
 
 void wait_thread(THREAD_HANDLE);
 

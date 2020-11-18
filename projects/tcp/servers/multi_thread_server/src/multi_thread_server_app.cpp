@@ -28,13 +28,13 @@ int main(int argc, char* argv[])
 
 	while (true)
 	{
-		sockaddr_in incom_addr;
+		struct sockaddr_in incom_addr;
 		memset(&incom_addr, 0, sizeof(incom_addr));
 		socklen_t len = sizeof(incom_addr);
 		SOCKET socket;
 		CHECK_IO((socket = accept(server_socket, (sockaddr*)&incom_addr, &len)) > 0, -1, "Can't accept connection\n");
 		connection_pool.push_back(
-			create_thread(handle_connection, &socket)
+			create_thread(handle_connection, (void*)socket)
 		);
 	}
 

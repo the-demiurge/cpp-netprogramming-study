@@ -10,6 +10,7 @@ typedef DWORD PROCESS_ID;
 typedef DWORD THREAD_ID;
 
 #define THREAD_RESULT DWORD
+typedef LPVOID THREAD_PARAM;
 
 #elif __linux__
 
@@ -21,13 +22,13 @@ typedef DWORD THREAD_ID;
 typedef int THREAD_HANDLE;
 typedef pid_t PROCESS_ID;
 typedef pthread_t THREAD_ID;
-
+typedef void* THREAD_PARAM;
 #define THREAD_RESULT void*
 
 #endif
 
 typedef THREAD_RESULT (*thread_function)(void*);
-typedef LPVOID THREAD_PARAM;
+
 
 THREAD_HANDLE create_thread(thread_function, THREAD_PARAM);
 

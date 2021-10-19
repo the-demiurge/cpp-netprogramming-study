@@ -58,34 +58,56 @@ bool parse_cmd(int argc, char* argv[], char* host, short* port)
     }
 
 
-    const int count_vars = 3;
-    const int host_buf_sz = 128;
-    int tmp_ports[count_vars] = { -1, -1, -1 };
-    char tmp_hosts[count_vars][host_buf_sz];
-    for (int i = 0; i < count_vars; ++i) {
-        memset(tmp_hosts[i], 0, host_buf_sz);
-    }
-    const char* formats[count_vars] = { "-h %s -p %d", "-p %d -h %s", "-p %d" };
-
-    int results[] = {
-            sscanf(all_args, formats[0], tmp_hosts[0], &tmp_ports[0]) - 2,
-            sscanf(all_args, formats[1], &tmp_ports[1], tmp_hosts[1]) - 2,
-            sscanf(all_args, formats[2], &tmp_ports[2]) - 1
+    struct FormatOptions {
+        char format[16];
+        int require_cn;
+        int order;
     };
 
-    for (int i = 0; i < sizeof(results) / sizeof(int); ++i) {
-        if (!results[i]) {
-            if (strlen(tmp_hosts[i]) > 0) {
-                strcpy(host, tmp_hosts[i]);
+    FormatOptions format_opts[] = {
+        {"-h %s -p %d", 2, 0},
+        {"-p %d -h %s", 2, 1},
+        {"-h %s:%d", 2, 0},
+        {"-p %d", 1, 0}
+
+    };
+
+    const int opt_counts = sizeof(format_opts)/sizeof(FormatOptions);
+
+    short tmp_port = -1;
+    char tmp_host[128];
+    int ret = 0;
+    int done = -1;
+    for (int i = 0; done != 0 && i < opt_counts; ++i) {
+        FormatOptions format_opt = format_opts[i];    
+        memset(tmp_host, 0, sizeof(tmp_host));
+        
+        if (format_opt.require_cn == 1) {
+            ret = sscanf(all_args, format_opt.format, &tmp_port);
+        }
+        else {            
+            if (format_opt.order == 1) {
+                ret = sscanf(all_args, format_opt.format, &tmp_port, tmp_host);
             }
-            if (tmp_ports[i] > 0) {
-                *port = (short)tmp_ports[i];
-                return true;
+            else if (format_opt.order == 0) {
+                ret = sscanf(all_args, format_opt.format, tmp_host, &tmp_port);
             }
+        }
+        
+        done = ret - format_opt.require_cn;             
+    }
+
+    if (done == 0) {
+        if (tmp_port > 0) {
+            *port = tmp_port;
+        }
+
+        if (host && strlen(tmp_host) > 0) {
+            strcpy(host, tmp_host);
         }
     }
 
-    return false;
+    return done;
 
 }
 

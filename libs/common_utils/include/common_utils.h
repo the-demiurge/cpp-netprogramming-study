@@ -31,4 +31,11 @@ ERROR_CODE_TYPE get_last_error();
 
 int current_thread_sleep(unsigned int millis);
 
+#ifdef _MSC_VER
+
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
+
+#endif // _MSC_VER
+
 #endif //NETWORK_PROGRAMMING_COMMON_UTILS_H

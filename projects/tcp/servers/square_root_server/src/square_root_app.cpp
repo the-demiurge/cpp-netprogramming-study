@@ -5,15 +5,23 @@ void exit_handler();
 SOCKET server_socket;
 
 int main(int argc, char *argv[]) {
+    
+    short port = DEFAULT_PORT;
+    
+    char host[128] = "";
+
+    if (parse_cmd(argc, argv, host, &port)) {
+        error_msg("Incorrect options");
+        return -1;
+    }
+
     atexit(common_exit_handler);
     atexit(exit_handler);
-    short port = DEFAULT_PORT;
-    char host[128] = "";
-    bool parse_cmd_result = parse_cmd(argc, argv, host, &port);
 
     common_init_handler();
 
     server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
     if (server_socket <= 0) {
         error_msg("Can't create socket");
         return -1;

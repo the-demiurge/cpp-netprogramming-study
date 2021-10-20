@@ -6,34 +6,23 @@ SOCKET server_socket;
 
 int main(int argc, char *argv[]) {
     
-    short port = DEFAULT_PORT;
-    
-    char host[128] = "";
+    COMMAND_OPTIONS cmd_opts{"", DEFAULT_PORT};
 
-    if (parse_cmd(argc, argv, host, &port)) {
-        error_msg("Incorrect options");
-        return -1;
-    }
+    parse_cmd(argc, argv, &cmd_opts);
 
-    atexit(common_exit_handler);
     atexit(exit_handler);
-
+    atexit(common_exit_handler);
     common_init_handler();
 
-    server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    CHECK_IO((server_socket = create_tcp_socket()) > 0, -1, "Can't create socket\n");
 
-    if (server_socket <= 0) {
-        error_msg("Can't create socket");
-        return -1;
-    }
-
-    sockaddr_in server_addr;
-    init_inet_address(&server_addr, host, port);
+    struct sockaddr_in server_addr;
+    init_inet_address(&server_addr, cmd_opts.host, cmd_opts.port);
 
     //Bind socket to the address on the server
     if (bind(server_socket, (sockaddr *) &server_addr, sizeof(sockaddr))) {
         char err_msg[128] = "";
-        sprintf(err_msg, "Can't bind socket to the port %d", port);
+        sprintf(err_msg, "Can't bind socket to the port %d", cmd_opts.port);
         error_msg(err_msg);
         return -1;
     }
@@ -43,7 +32,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    printf("Server running at the port %d\n", port);
+    printf("Server running at the port %d\n", cmd_opts.port);
 
     while (true) {
         sockaddr_in incom_addr;

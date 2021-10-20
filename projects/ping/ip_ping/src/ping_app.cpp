@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     struct sockaddr_in dest, from;
     int ret;
 
-    if (!resolve_addr(host, &(dest.sin_addr)))
+    if (!resolve_address(host, &(dest.sin_addr)))
     {
         printf("Can't resolve host %s\n", host);
         return -1;

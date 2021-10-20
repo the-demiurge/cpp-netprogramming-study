@@ -35,14 +35,22 @@ typedef int SOCKET;
 int common_init_handler();
 void common_exit_handler();
 
+SOCKET create_tcp_socket();
+
+SOCKET create_udp_socket();
+
+SOCKET create_icmp_socket();
+
+SOCKET create_igmp_socket();
+
 int close_socket(int socket);
 
-bool resolve_addr(const char*, in_addr*);
-bool parse_cmd(int argc, char* argv[], char* host, short* port);
+bool resolve_address(const char*, in_addr*);
 
 void error_msg(const char*);
 
 sockaddr_in* init_inet_address(struct sockaddr_in *address, const char*, const short);
+
 int bind_socket_to(SOCKET, struct sockaddr_in*);
 
 #define CHECK_IO(io, err_code, ...) \

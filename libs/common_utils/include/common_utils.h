@@ -38,4 +38,15 @@ int current_thread_sleep(unsigned int millis);
 
 #endif // _MSC_VER
 
+typedef struct CommandOptions {
+    char  host[256];
+    short port;
+} COMMAND_OPTIONS, *PCOMMAND_OPTIONS;
+
+bool parse_cmd(int argc, char* argv[], PCOMMAND_OPTIONS);
+
+bool valid_connection_opts(PCOMMAND_OPTIONS);
+
+void common_usage(const char*);
+
 #endif //NETWORK_PROGRAMMING_COMMON_UTILS_H

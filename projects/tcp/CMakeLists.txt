@@ -1,4 +1,2 @@
-add_subdirectory(shared_tcp_structs)
-list(APPEND SHARED_TCP_DEPENDENCIES shared_tcp_structs)
 add_subdirectory(clients)
 add_subdirectory(servers)

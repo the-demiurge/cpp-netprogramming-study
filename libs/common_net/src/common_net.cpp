@@ -23,92 +23,24 @@ void common_exit_handler() {
 #endif
 }
 
-bool resolve_addr(const char* str_addr, in_addr* baddr)
+bool resolve_address(const char* str_address, in_addr* baddr)
 {
-    long ip = inet_addr(str_addr);
+    long ip = inet_addr(str_address);
 	if (ip > 0) {
 		baddr->s_addr = ip;
         return true;
     }
     else {
-        hostent* hp = gethostbyname(str_addr);
+        hostent* hp = gethostbyname(str_address);
         if (hp == NULL)
         {
-            fprintf(stderr, "Error host %s", str_addr);
+            fprintf(stderr, "Error host %s", str_address);
             return false;
         }
 		
 		memcpy(&(baddr->s_addr), hp->h_addr_list[0], hp->h_length);
         return true;
     }
-}
-
-bool parse_cmd(int argc, char* argv[], char* host, short* port)
-{
-    if (argc < 2) {
-        return false;
-    }
-
-    char all_args[256];
-    memset(all_args, 0, sizeof all_args);
-
-    for (int i = 1; i < argc; ++i) {
-        strcat(all_args, argv[i]);
-        strcat(all_args, " ");
-    }
-
-
-    struct FormatOptions {
-        char format[16];
-        int require_cn;
-        int order;
-    };
-
-    FormatOptions format_opts[] = {
-        {"-h %s -p %d", 2, 0},
-        {"-p %d -h %s", 2, 1},
-        {"-h %s:%d", 2, 0},
-        {"-p %d", 1, 0}
-
-    };
-
-    const int opt_counts = sizeof(format_opts)/sizeof(FormatOptions);
-
-    short tmp_port = -1;
-    char tmp_host[128];
-    int ret = 0;
-    int done = -1;
-    for (int i = 0; done != 0 && i < opt_counts; ++i) {
-        FormatOptions format_opt = format_opts[i];    
-        memset(tmp_host, 0, sizeof(tmp_host));
-        
-        if (format_opt.require_cn == 1) {
-            ret = sscanf(all_args, format_opt.format, &tmp_port);
-        }
-        else {            
-            if (format_opt.order == 1) {
-                ret = sscanf(all_args, format_opt.format, &tmp_port, tmp_host);
-            }
-            else if (format_opt.order == 0) {
-                ret = sscanf(all_args, format_opt.format, tmp_host, &tmp_port);
-            }
-        }
-        
-        done = ret - format_opt.require_cn;             
-    }
-
-    if (done == 0) {
-        if (tmp_port > 0) {
-            *port = tmp_port;
-        }
-
-        if (host && strlen(tmp_host) > 0) {
-            strcpy(host, tmp_host);
-        }
-    }
-
-    return done;
-
 }
 
 int close_socket(int socket) {
@@ -135,7 +67,7 @@ struct sockaddr_in *init_inet_address(struct sockaddr_in *address, const char *h
     address->sin_port = htons(port);
     if (host && strlen(host) > 0) {
         struct in_addr addr;
-        resolve_addr(host, &addr);
+        resolve_address(host, &addr);
         address->sin_addr.s_addr = addr.s_addr;
     } else {
         address->sin_addr.s_addr = htonl(INADDR_ANY);
@@ -155,7 +87,7 @@ int set_group_loopback(SOCKET socket, int loopback) {
 int set_group_address(SOCKET socket, const char * address) {
     struct in_addr addr;
     memset(&addr, 0, sizeof(addr));
-    resolve_addr((char*)address, &addr);
+    resolve_address((char *) address, &addr);
     return setsockopt(socket, IPPROTO_IP, IP_MULTICAST_IF, (char*)&addr, sizeof(addr));
 }
 
@@ -164,7 +96,7 @@ int init_group(const char * local_addr, const char * group_addr, struct ip_mreq 
 
     if (local_addr && strlen(local_addr) > 0) {
         memset(&addr, 0, sizeof(addr));
-        if (!resolve_addr((char*)local_addr, &addr)) {
+        if (!resolve_address((char *) local_addr, &addr)) {
             return -1;
         }
         group->imr_interface.s_addr = addr.s_addr;
@@ -174,7 +106,7 @@ int init_group(const char * local_addr, const char * group_addr, struct ip_mreq 
 
     if (group_addr && strlen(group_addr) > 0) {
         memset(&addr, 0, sizeof(addr));
-        if (!resolve_addr((char*)group_addr, &addr)) {
+        if (!resolve_address((char *) group_addr, &addr)) {
             return -1;
         }
         group->imr_multiaddr.s_addr = addr.s_addr;
@@ -225,4 +157,20 @@ int set_recv_timeout_ms(SOCKET socket, int millis) {
   #error "Unsupported platform for setsockopt"
 #endif
     return setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
+}
+
+SOCKET create_tcp_socket() {
+    return ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+}
+
+SOCKET create_udp_socket() {
+    return ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+}
+
+SOCKET create_icmp_socket() {
+    return ::socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
+}
+
+SOCKET create_igmp_socket() {
+    return ::socket(AF_INET, SOCK_RAW, IPPROTO_IGMP);
 }

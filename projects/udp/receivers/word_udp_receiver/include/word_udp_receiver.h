@@ -2,7 +2,7 @@
 #define NETWORK_PROGRAMMING_WORD_UDP_UDP_RECEIVER_H
 
 #include "common_net.h"
-#include "shared_udp_structs.h"
+#include "common_protocols.h"
 
 #define DEFAULT_PORT 6557
 

@@ -7,24 +7,25 @@ std::vector<THREAD_HANDLE> connection_pool;
 
 int main(int argc, char* argv[])
 {
-	atexit(common_exit_handler);
-	atexit(exit_handler);
-	short port = DEFAULT_PORT;
-	char host[128] = "";
-	bool parse_cmd_result = parse_cmd(argc, argv, host, &port);
+    COMMAND_OPTIONS cmd_opts{"", DEFAULT_PORT};
 
-	common_init_handler();
-    CHECK_IO((server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) > 0, -1, "Can't create socket\n");
+    parse_cmd(argc, argv, &cmd_opts);
 
-	sockaddr_in server_addr;
-	init_inet_address(&server_addr, host, port);
+    atexit(exit_handler);
+    atexit(common_exit_handler);
+    common_init_handler();
+
+    CHECK_IO((server_socket = create_tcp_socket()) > 0, -1, "Can't create socket\n");
+
+    sockaddr_in server_addr;
+    init_inet_address(&server_addr, cmd_opts.host, cmd_opts.port);
 
 	//Bind socket to the address on the server
-	CHECK_IO(!bind(server_socket, (sockaddr*)&server_addr, sizeof(sockaddr)), -1, "Can't bind socket to the port %d\n", port);
+	CHECK_IO(!bind(server_socket, (sockaddr*)&server_addr, sizeof(sockaddr)), -1, "Can't bind socket to the port %d\n", cmd_opts.port);
 	//Set socket as passive
 	CHECK_IO(!listen(server_socket, CONNECTION_QUEUE), -1, "Error listening socket\n");
 
-	printf("Server running at the port %d\n", port);
+	printf("Server running at the port %d\n", cmd_opts.port);
 
 	while (true)
 	{

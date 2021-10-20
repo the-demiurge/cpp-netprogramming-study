@@ -1,4 +1,4 @@
-project(shared_udp_structs)
+project(common_protocols)
 
 file(GLOB SRC src/*.cpp src/*.cxx)
 

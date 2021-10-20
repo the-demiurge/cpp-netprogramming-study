@@ -5,33 +5,28 @@ void exit_handler();
 SOCKET receiver_socket;
 
 int main(int argc, char *argv[]) {
+    COMMAND_OPTIONS cmd_opts{"", DEFAULT_PORT};
+
+    parse_cmd(argc, argv, &cmd_opts);
+
+    atexit(exit_handler);
     atexit(common_exit_handler);
-	atexit(exit_handler);
-
-    short port = DEFAULT_PORT;
-    char host[128] = "";
-    bool parse_cmd_result = parse_cmd(argc, argv, host, &port);
-
     common_init_handler();
 
-    receiver_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if (receiver_socket <= 0) {
-        error_msg("Can't create socket");
-        return -1;
-    }
+    CHECK_IO((receiver_socket = create_udp_socket()) > 0, -1, "Can't create socket\n");
 
     struct sockaddr_in receiver_addr;
-    init_inet_address(&receiver_addr, host, port);
+    init_inet_address(&receiver_addr, cmd_opts.host, cmd_opts.port);
 
 	//Bind socket to the address on the server
 	if (bind(receiver_socket, (sockaddr *)&receiver_addr, sizeof(sockaddr))) {
 		char err_msg[128] = "";
-		sprintf(err_msg, "Can't bind socket to the port %d", port);
+		sprintf(err_msg, "Can't bind socket to the port %d", cmd_opts.port);
 		error_msg(err_msg);
 		return -1;
 	}
 
-    printf("Receiver available on the port %d\n", port);
+    printf("Receiver available on the port %d\n", cmd_opts.port);
 
     while (process_receive_data(receiver_socket)) {}
 

@@ -5,29 +5,22 @@ void exit_handler();
 SOCKET sender_socket;
 int main(int argc, char* argv[])
 {
-	atexit(common_exit_handler);
-	atexit(exit_handler);
+    COMMAND_OPTIONS cmd_opts{"", 0};
 
-	short port;
-	char host[128] = "";
-	bool parse_cmd_result = parse_cmd(argc, argv, host, &port);
+    if (parse_cmd(argc, argv, &cmd_opts) && valid_connection_opts(&cmd_opts)) 
+    {
+        common_usage(argv[0]);
+        return -1;
+    }
 
-	if (!parse_cmd_result || !host || !strlen(host))
-	{
-		printf("Invalid host or port. Usage %s -h host -p port\n", argv[0]);
-		return -1;
-	}
-
+    atexit(exit_handler);
+    atexit(common_exit_handler);
     common_init_handler();
 
-    sender_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	if (sender_socket <= 0) {
-		error_msg("Can't create socket");
-		return -1;
-	}
+    CHECK_IO((sender_socket = create_udp_socket()) > 0, -1, "Can't create socket\n");
 
-	struct sockaddr_in server_addr;
-	init_inet_address(&server_addr, host, port);
+    struct sockaddr_in server_addr;
+    init_inet_address(&server_addr, cmd_opts.host, cmd_opts.port);
 
 	
 	char msg[256] = "";
@@ -37,7 +30,7 @@ int main(int argc, char* argv[])
 	int sc = sendto(sender_socket, msg, sizeof(msg), 0, (sockaddr*)&server_addr, sizeof(server_addr));
 	if (sc <= 0) {
 		char err_msg[128] = "";
-		sprintf(err_msg, "Can't send data to the %s:%d", host, port);
+		sprintf(err_msg, "Can't send data to the %s:%d", cmd_opts.host, cmd_opts.port);
 		error_msg(err_msg);
 		return -1;
 	}

@@ -4,7 +4,7 @@ THREAD_RESULT process_connection(void* data) {
     PCLIENT_OPTIONS poptions = (PCLIENT_OPTIONS)data;
 
     SOCKET client_socket = -1;
-    CHECK_IO((client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) > 0, (THREAD_RESULT)-1, "Can't create client socket\n");
+    CHECK_IO((client_socket = create_tcp_socket()) > 0, (THREAD_RESULT)-1, "Can't create client socket\n");
 
     struct sockaddr_in server_addr;
     init_inet_address(&server_addr, poptions->server_host, poptions->server_port);

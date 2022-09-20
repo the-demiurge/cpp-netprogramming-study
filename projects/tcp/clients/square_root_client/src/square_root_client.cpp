@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
 {
     COMMAND_OPTIONS cmd_opts{"", 0};
 
-    if (parse_cmd(argc, argv, &cmd_opts) && valid_connection_opts(&cmd_opts))
+    if (!parse_cmd(argc, argv, &cmd_opts) || parse_cmd(argc, argv, &cmd_opts) && !valid_connection_opts(&cmd_opts))
     {
         common_usage(argv[0]);
         return -1;

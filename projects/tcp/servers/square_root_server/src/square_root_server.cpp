@@ -26,12 +26,12 @@ SquareRootResponse* compute(SquareRootRequest* rq, SquareRootResponse* rs) {
 	}
 	else if (D == 0) {
 		rs->status = ONE_ROOTS;
-		rs->x1 = rs->x2 = -rq->b / 2 / rq->b;
+		rs->x1 = rs->x2 = -rq->b / (rq->a * 2);
 	}
 	else {
 		rs->status = TWO_ROOTS;
-		rs->x1 = (-rq->b - sqrt(D)) / 2 / rq->b;
-		rs->x2 = (-rq->b + sqrt(D)) / 2 / rq->b;
+		rs->x1 = (-rq->b - sqrt(D)) / (rq->a * 2);
+		rs->x2 = (-rq->b + sqrt(D)) / (rq->a * 2);
 	}
 
 	return rs;

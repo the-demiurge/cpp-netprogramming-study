@@ -15,9 +15,9 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    atexit(exit_handler);
-    atexit(common_exit_handler);
-    common_init_handler();
+	atexit(common_exit_handler);
+	atexit(exit_handler);
+	common_init_handler();
 
 	client_socket = create_tcp_socket();
 	if (client_socket <= 0) {

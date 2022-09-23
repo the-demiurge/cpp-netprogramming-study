@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 	init_inet_address(&server_addr, cmd_opts.host, cmd_opts.port);
 	//Connect to the server
 	if (connect(client_socket, (sockaddr*)&server_addr, sizeof(sockaddr))) {
-		char err_msg[128] = "";
+		char err_msg[512] = "";
 		sprintf(err_msg, "Can't connect to the server %s:%d", cmd_opts.host, cmd_opts.port);
 		error_msg(err_msg);
 		return -1;
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
 		create_thread(send_and_process, (void*)&clientData);
 	}
 
-	Sleep(5000);
+    current_thread_sleep(5000);
 	
 	return 0;
 }

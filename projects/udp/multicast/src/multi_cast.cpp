@@ -48,7 +48,7 @@ void parse_cmd_line(int argc, char **argv, PMULTICAST_GROUP_OPTION opts) {
 }
 
 int group_sender(PMULTICAST_GROUP_OPTION opts, SOCKET socket, struct sockaddr_in* to) {
-    unsigned int i = 0;
+    unsigned long int i;
     socklen_t ret;
 
     for (i = 0; i < opts->repeat_count; ++i)

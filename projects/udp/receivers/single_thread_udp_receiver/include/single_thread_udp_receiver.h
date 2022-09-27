@@ -5,5 +5,5 @@
 
 #define DEFAULT_PORT 6557
 
-bool process_receive_data(SOCKET socket);
+bool handle_mouse_position(SOCKET socket);
 #endif //NETWORK_PROGRAMMING_SINGLE_THREAD_UDP_RECEIVER_H

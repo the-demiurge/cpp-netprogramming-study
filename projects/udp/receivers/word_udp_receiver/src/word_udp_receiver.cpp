@@ -1,6 +1,6 @@
 #include "word_udp_receiver.h"
 
-bool process_receive_data(SOCKET socket) {
+bool handle_mouse_position(SOCKET socket) {
     struct sockaddr_in incom_addr;
     memset(&incom_addr, 0, sizeof(incom_addr));
     socklen_t len = sizeof(incom_addr);

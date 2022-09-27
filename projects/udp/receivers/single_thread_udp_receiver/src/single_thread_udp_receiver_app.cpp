@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
 
     printf("Receiver available on the port %d\n", cmd_opts.port);
 
-    while (process_receive_data(receiver_socket)) {}
+    while (handle_mouse_position(receiver_socket)) {}
 
     return 0;
 }

@@ -24,9 +24,4 @@ struct WordPacket {
     char data[256];
     int words;
 };
-
-typedef struct MousePosition {
-    int x;
-    int y;
-} MOUSE_POSITION, *PMOUSE_POSITION;
 #endif // !_NETWORK_PROGRAMMING_COMMON_PROTOCOLS

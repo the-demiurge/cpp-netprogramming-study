@@ -1,6 +1,11 @@
 #ifndef NETWORK_PROGRAMMING_COMMON_UTILS_H
 #define NETWORK_PROGRAMMING_COMMON_UTILS_H
 
+typedef struct MousePosition {
+    int x;
+    int y;
+} MOUSE_POSITION, *PMOUSE_POSITION;
+
 #ifdef _WIN32
 
 #include <windows.h>
@@ -48,5 +53,8 @@ bool parse_cmd(int argc, char* argv[], PCOMMAND_OPTIONS);
 bool valid_connection_opts(PCOMMAND_OPTIONS);
 
 void common_usage(const char*);
+
+void get_mouse_pos(PMOUSE_POSITION);
+void set_mouse_pos(PMOUSE_POSITION);
 
 #endif //NETWORK_PROGRAMMING_COMMON_UTILS_H

@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 	scanf("%[^\n]s", msg);
 	int sc = sendto(sender_socket, msg, sizeof(msg), 0, (sockaddr*)&server_addr, sizeof(server_addr));
 	if (sc <= 0) {
-		char err_msg[128] = "";
+		char err_msg[512] = "";
 		sprintf(err_msg, "Can't send data to the %s:%d", cmd_opts.host, cmd_opts.port);
 		error_msg(err_msg);
 		return -1;

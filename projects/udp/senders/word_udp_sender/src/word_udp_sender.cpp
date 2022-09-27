@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 
         int sc = sendto(sender_socket, (char*)&msgPacket, sizeof(msgPacket), 0, (sockaddr*)&receiver_address, len);
         if (sc <= 0) {
-            char err_msg[128] = "";
+            char err_msg[512] = "";
             sprintf(err_msg, "Can't send data to the %s:%d", cmd_opts.host, cmd_opts.port);
             error_msg(err_msg);
             return -1;

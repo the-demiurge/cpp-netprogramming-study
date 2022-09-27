@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 
 	//Connect to the server
 	if (connect(client_socket, (sockaddr*)&server_addr, sizeof(sockaddr))) {
-		char err_msg[128] = "";
+		char err_msg[512] = "";
 		sprintf(err_msg, "Can't connect to the server %s:%d", cmd_opts.host, cmd_opts.port);
 		error_msg(err_msg);
 		return -1;
@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
 		scanf("%lf %lf %lf", &request.a, &request.b, &request.c);
 		int sc = send(client_socket, (char*)&request, sizeof(request), 0);
 		if (sc <= 0) {
-			char err_msg[128] = "";
+			char err_msg[512] = "";
 			sprintf(err_msg, "Can't send data to the server %s:%d", cmd_opts.host, cmd_opts.port);
 			error_msg(err_msg);
 			return -1;
@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
 	{
 		int sc = recv(client_socket, (char*)&response, sizeof(response), 0);
 		if (sc <= 0) {
-			char err_msg[128] = "";
+			char err_msg[512] = "";
 			sprintf(err_msg, "Can't received data from the server %s:%d", cmd_opts.host, cmd_opts.port);
 			error_msg(err_msg);
 			return -1;

@@ -5,6 +5,8 @@ void exit_handler();
 SOCKET server_socket;
 std::vector<THREAD_HANDLE> connection_pool;
 
+volatile bool isRunning;
+
 int main(int argc, char* argv[])
 {
     COMMAND_OPTIONS cmd_opts{"", DEFAULT_PORT};
@@ -27,19 +29,17 @@ int main(int argc, char* argv[])
 
 	printf("Server running at the port %d\n", cmd_opts.port);
 
-	while (true)
-	{
-		struct sockaddr_in incom_addr;
-		memset(&incom_addr, 0, sizeof(incom_addr));
-		socklen_t len = sizeof(incom_addr);
-		SOCKET socket;
-		CHECK_IO((socket = accept(server_socket, (sockaddr*)&incom_addr, &len)) > 0, -1, "Can't accept connection\n");
-		connection_pool.push_back(
-			create_thread(handle_connection, (void*)socket)
-		);
-	}
-
-	close_socket(server_socket);
+    isRunning = true;
+	while (isRunning) {
+        struct sockaddr_in incom_addr;
+        memset(&incom_addr, 0, sizeof(incom_addr));
+        socklen_t len = sizeof(incom_addr);
+        SOCKET socket;
+        CHECK_IO((socket = accept(server_socket, (sockaddr * ) & incom_addr, &len)) > 0, -1, "Can't accept connection\n");
+        connection_pool.push_back(
+                create_thread(handle_connection, (THREAD_RESULT) socket)
+        );
+    }
 
 	return 0;
 }

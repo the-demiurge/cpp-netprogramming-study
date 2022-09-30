@@ -3,6 +3,7 @@
 
 #include "common_net.h"
 #include "common_protocols.h"
+#include "common_utils.h"
 
 #define DEFAULT_PORT 6557
 

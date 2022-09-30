@@ -106,3 +106,27 @@ void common_usage(const char* str) {
     printf("\t\t: -h <host>:<port> \n");
     printf("\t\t: -p <port> \n");
 }
+
+void get_mouse_pos(PMOUSE_POSITION p_mouse_pos) {
+#ifdef _WIN32
+    if (!p_mouse_pos) {
+        return;
+    }
+
+    POINT point;
+    GetCursorPos(&point);
+    p_mouse_pos->x = point.x;
+    p_mouse_pos->y = point.y;
+#elif __linux__
+#endif
+}
+
+void set_mouse_pos(PMOUSE_POSITION p_mouse_pos) {
+#ifdef _WIN32
+    if (!p_mouse_pos) {
+        return;
+    }
+    SetCursorPos(p_mouse_pos->x, p_mouse_pos->y);
+#elif __linux__
+#endif
+}

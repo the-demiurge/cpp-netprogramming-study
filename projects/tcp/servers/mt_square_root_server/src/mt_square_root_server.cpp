@@ -22,6 +22,7 @@ THREAD_RESULT handle_connection(void *data) {
     }
     close_socket(socket);
     printf("[%s]>>%s", str_in_addr, "Close incomming connection");
+    return 0;
 #ifdef __linux
     return nullptr;
 #endif

@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
             error_msg("Can't accept connection");
             return -1;
         }
-        create_thread(handle_connection, (THREAD_RESULT)socket);
+        create_thread(handle_connection, (THREAD_PARAM)socket);
     }
 
     return 0;

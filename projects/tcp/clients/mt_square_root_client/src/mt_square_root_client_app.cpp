@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 	};
 	
 	for (int i = 0; i < sizeof(requests) / sizeof(SquareRootRequest); ++i) {
-		ClientData clientData{ client_socket, requests[i] };
+		ClientHeaderData clientData{client_socket, requests[i] };
 		create_thread(send_and_process, (void*)&clientData);
 	}
 

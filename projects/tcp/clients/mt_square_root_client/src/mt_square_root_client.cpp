@@ -2,7 +2,7 @@
 
 
 THREAD_RESULT send_and_process(void* data) {
-    ClientData* client_data = (ClientData*) data;
+    ClientHeaderData* client_data = (ClientHeaderData*) data;
 
     SquareRootResponse response;
 

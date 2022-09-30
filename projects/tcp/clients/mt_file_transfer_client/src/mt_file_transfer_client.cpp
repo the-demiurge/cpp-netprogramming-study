@@ -2,28 +2,31 @@
 
 
 THREAD_RESULT send_and_process(void* data) {
-    ClientData* client_data = (ClientData*) data;
+    ClientHeaderData* client_data = (ClientHeaderData*) data;
 
-    FileTransferResponse response;
+    FileTransferResult response;
 
-	int sc = send(client_data->socket, (char*)&(client_data->request), sizeof(FileTransferRequest), 0);
-	sc = recv(client_data->socket, (char*)&response, sizeof(FileTransferResponse), 0);
+	int sc = send(client_data->socket, (char*)&(client_data->request), sizeof(FileHeader), 0);
+	sc = recv(client_data->socket, (char*)&response, sizeof(FileTransferResult), 0);
 
     process_response(&response);
 
 	return 0;
 }
 
-void process_response(FileTransferResponse* res) {
+void process_response(FileTransferResult* res) {
     switch (res->status) {
-        case OK:
+        case FileTransferResult::ACCEPTED:
             printf("Transferring the file...\n");
             break;
-        case BIG_SIZE:
+        case FileTransferResult::NOT_ACCEPTED_SIZE:
             printf("Your file is too big.\n");
             break;
-        case SAVED:
+        case FileTransferResult::OK:
             printf("Your file saved to server successfully.\n");
+            break;
+        case FileTransferResult::FAIL:
+            printf("Your file saved to server failure.\n");
             break;
     }
 }

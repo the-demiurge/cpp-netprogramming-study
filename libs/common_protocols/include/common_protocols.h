@@ -2,15 +2,24 @@
 
 #define _NETWORK_PROGRAMMING_COMMON_PROTOCOLS
 
-struct FileTransferRequest {
-	char file_size_str[32];
-	char file_name[32];
-	char* bytes = new char[atoi(file_size_str)];
-};
-enum FileTransferStatus { OK = 0, BIG_SIZE = 1, SAVED = 2 };
+const int FILE_HEADER_SIZE = 32;
 
-struct FileTransferResponse {
-	enum FileTransferStatus status;
+const int FILE_BUFFER_SIZE = 1024;
+
+struct FileHeader {
+    char name[FILE_HEADER_SIZE];
+	unsigned long size;
+};
+
+struct FileContent {
+    char buffer[FILE_BUFFER_SIZE];
+    long count;
+	bool is_closed;
+};
+
+struct FileTransferResult {
+    enum FileAcceptStatus { ACCEPTED = 0, NOT_ACCEPTED_SIZE = 1, OK = 2, FAIL = 3 };
+	enum FileAcceptStatus status;
 };
 
 struct SquareRootRequest {

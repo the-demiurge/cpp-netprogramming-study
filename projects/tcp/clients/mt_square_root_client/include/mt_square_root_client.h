@@ -8,7 +8,7 @@
 #define DEFAULT_SERVER_HOST "127.0.0.1"
 #define DEFAULT_SERVER_PORT 5559
 
-struct ClientData {
+struct ClientHeaderData {
     SOCKET socket;
     SquareRootRequest request;
 };

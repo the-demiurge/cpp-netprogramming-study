@@ -30,10 +30,7 @@ int main(int argc, char* argv[])
     MOUSE_POSITION prev_mouse_pos = {0, 0};
 
     while(ch != 27) {
-        if (kbhit()) {
-            ch = getch();
-            getch();
-        }
+        ch = getc(stdin);
 
         MOUSE_POSITION current_mouse_pos = {0, 0};
 

@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
     //Send file header to server
     auto ret = send(client_socket, (char*)&file_header, sizeof(FileHeader), 0);
 
-    CHECK_IO((send(client_socket, (char*)&file_header, sizeof(FileHeader), 0) <= 0), -1, "Error to send file header");
+    CHECK_IO((send(client_socket, (char*)&file_header, sizeof(FileHeader), 0) > 0), -1, "Error to send file header");
 
     struct FileTransferResult result;
 
@@ -66,11 +66,9 @@ int main(int argc, char* argv[])
 
     ret = recv(client_socket, (char*)&result, sizeof(FileTransferResult), 0);
 
-    CHECK_IO((recv(client_socket, (char*)&result, sizeof(FileTransferResult), 0) <= 0), -1, "Error to received server response");
+    CHECK_IO((recv(client_socket, (char*)&result, sizeof(FileTransferResult), 0) > 0), -1, "Error to received server response");
 
-    CHECK_IO((result.status == FileTransferResult::NOT_ACCEPTED_SIZE), -1, "File size is not accepted");
-
-    CHECK_IO((result.status != FileTransferResult::ACCEPTED), -1, "Cannot to received file");
+    CHECK_IO((result.status != FileTransferResult::ACCEPTED), -1, "File size is not accepted");
 
 
     //UPLOAD FILE
@@ -84,20 +82,18 @@ int main(int argc, char* argv[])
 
     {
         struct FileContent content;
+        long current_file_pos = 0;
         while (!file.eof()) {
             memset(&content, 0, sizeof(content));
             file.read(content.buffer, FILE_BUFFER_SIZE);
-            content.count = file.gcount();
-            content.is_closed = false;
-            CHECK_IO((send(client_socket, (char*)&content, sizeof(content), 0) <= 0), -1, "Can't send file content")
-            CHECK_IO((recv(client_socket, (char*)&result, sizeof(result), 0) <= 0), -1, "Can't send get sever response")
-            CHECK_IO((result.status != FileTransferResult::OK), -1, "Server error to receive file")
+            long next_file_pos = file.gcount();
+            content.count = next_file_pos - current_file_pos;
+            current_file_pos = next_file_pos;
+            
+            CHECK_IO((send(client_socket, (char*)&content, sizeof(content), 0) > 0), -1, "Can't send file content")
+            CHECK_IO((recv(client_socket, (char*)&result, sizeof(result), 0) > 0), -1, "Can't send get sever response")
+            CHECK_IO((result.status == FileTransferResult::OK), -1, "Server error to receive file")
         }
-    }
-
-    {
-        struct FileContent content {"", 0, true};
-        CHECK_IO((send(client_socket, (char*)&content, sizeof(content), 0) <= 0), -1, "Can't send finishing of file upload")
     }
 
 	return 0;

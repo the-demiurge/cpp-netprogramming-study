@@ -14,14 +14,19 @@
 #define DEFAULT_SERVER_PORT 5559
 
 
-struct ClientData {
+struct ClientHeaderData {
     SOCKET socket;
-    FileTransferRequest request;
+    FileHeader request;
+};
+
+struct ClientContentData {
+    SOCKET socket;
+    FileContent content;
 };
 
 THREAD_RESULT send_and_process(void*);
 
-void process_response(FileTransferResponse*);
+void process_response(FileTransferResult*);
 
 
 #endif //NETWORK_PROGRAMMING_SIMPLE_TCP_CLIENT_H

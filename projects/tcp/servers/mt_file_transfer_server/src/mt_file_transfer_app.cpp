@@ -37,6 +37,7 @@ int main(int argc, char *argv[]) {
         memset(&incom_addr, 0, sizeof(incom_addr));
         socklen_t len = sizeof(incom_addr);
         SOCKET socket = accept(server_socket, (sockaddr *) &incom_addr, &len);
+        
         if (socket <= 0) {
             error_msg("Can't accept connection");
             return -1;

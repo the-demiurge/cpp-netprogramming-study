@@ -5,7 +5,7 @@
 #include "common_protocols.h"
 #include "common_utils.h"
 #include "string.h"
-#include "conio.h"
+#include "stdio.h"
 
 #define DEFAULT_REMOTE_CONTROL_HOST "127.0.0.1"
 #define DEFAULT_REMOTE_CONTROL_PORT 6557

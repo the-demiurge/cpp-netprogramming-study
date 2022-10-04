@@ -36,47 +36,66 @@ int main(int argc, char* argv[])
 
 	printf("Connection to the server %s:%d success\n", cmd_opts.host, cmd_opts.port);
 
-	//UPLOAD FILE 
+    struct FileHeader file_header;
+    memset(&file_header, 0, sizeof(file_header));
+
+    {
+        char file_name[FILE_HEADER_SIZE];
+        printf("Type a file name:");
+        scanf("%s", file_name);
+
+        std::filesystem::path file_path{file_name};
+
+        if (!std::filesystem::exists(file_path)) {
+            printf("Sorry but file [%s] doesn't exist", file_path.c_str());
+            return -1;
+        }
+
+        strcpy(file_header.name, file_name);
+        file_header.size = std::filesystem::file_size(file_path);
+    }
+
+    //Send file header to server
+    auto ret = send(client_socket, (char*)&file_header, sizeof(FileHeader), 0);
+
+    CHECK_IO((send(client_socket, (char*)&file_header, sizeof(FileHeader), 0) > 0), -1, "Error to send file header");
+
+    struct FileTransferResult result;
+
+    memset(&result, 0, sizeof(result));
+
+    ret = recv(client_socket, (char*)&result, sizeof(FileTransferResult), 0);
+
+    CHECK_IO((recv(client_socket, (char*)&result, sizeof(FileTransferResult), 0) > 0), -1, "Error to received server response");
+
+    CHECK_IO((result.status != FileTransferResult::ACCEPTED), -1, "File size is not accepted");
+
+
+    //UPLOAD FILE
 	std::fstream file;
-	char file_name[32];
-	file.open(file_name, std::ios_base::in | std::ios_base::binary);
-	
-	int file_size = std::filesystem::file_size() + 1;
-	char* bytes = new char[file_size];
-	
-	if (file.is_open()) {
-		file.read((char*)bytes, file_size);
+	file.open(file_header.name, std::ios_base::in | std::ios_base::binary);
 
-	}
-	FileTransferRequest request;
+    if (!file.is_open()) {
+        printf("Sorry but file [%s] could not be opened\n", file_header.name);
+        return -1;
+    }
 
-	char file_size_str[32];
-	sprintf(file_size_str, "%d", file_size);
+    {
+        struct FileContent content;
+        long current_file_pos = 0;
+        while (!file.eof()) {
+            memset(&content, 0, sizeof(content));
+            file.read(content.buffer, FILE_BUFFER_SIZE);
+            long next_file_pos = file.gcount();
+            content.count = next_file_pos - current_file_pos;
+            current_file_pos = next_file_pos;
+            
+            CHECK_IO((send(client_socket, (char*)&content, sizeof(content), 0) > 0), -1, "Can't send file content")
+            CHECK_IO((recv(client_socket, (char*)&result, sizeof(result), 0) > 0), -1, "Can't send get sever response")
+            CHECK_IO((result.status == FileTransferResult::OK), -1, "Server error to receive file")
+        }
+    }
 
-	//Assigning values to request
-	memcpy(request.file_size_str, file_size_str, 32);
-	request.file_size_str[31] = 0;
-
-	memcpy(request.file_name, file_name, 32);
-	request.file_name[31] = 0;
-
-	memcpy(request.bytes, file_size_str, sizeof(bytes));
-	request.bytes[sizeof(bytes)] = 0;
-	//
-
-	/*SquareRootRequest requests[] = {
-		{-1, 2, 1},
-		{3, -1, 4},
-		{-2, 2, 1}
-	};*/
-	
-	for (int i = 0; i < sizeof(requests) / sizeof(FileTransferRequest); ++i) {
-		ClientData clientData{ client_socket, requests[i] };
-		create_thread(send_and_process, (void*)&clientData);
-	}
-
-    current_thread_sleep(5000);
-	
 	return 0;
 }
 

@@ -12,7 +12,7 @@
 #define DEFAULT_PORT 5559
 #define CONNECTION_QUEUE 100
 
-FileTransferResponse* isOK(FileTransferRequest*, FileTransferResponse*);
+FileTransferResult* isOK(FileHeader*, FileTransferResult*);
 
 THREAD_RESULT handle_connection(void*);
 #endif //NETWORK_PROGRAMMING_SINGLE_THREAD_TCP_SERVER_H

@@ -19,7 +19,7 @@ THREAD_RESULT handle_connection(void *data) {
     struct FileTransferResult result;
     memset(&result, 0, sizeof(result));
     isOK(&file_header, &result);
-    printf("+++ %d", file_header.size);
+    //printf("+++ %d", file_header.size);
 
     rc = send(socket, (char *) &result, sizeof(result), 0);
     //CHECK_VOID_IO((rc > 0), "Can't send result to client")
@@ -35,12 +35,13 @@ THREAD_RESULT handle_connection(void *data) {
 
     //Download file if it has correct size
 
-    std::fstream file;
-    file.open(file_header.name, std::ios_base::out | std::ios_base::binary);
+    std::ofstream file;
+    file.open(file_header.name, std::ios_base::binary);
 
     long total_received = 0;
 
     while (total_received != file_header.size) {
+        memset(&file_content, 0, sizeof(file_content));
         auto ret = recv(socket, (char*)&file_content, sizeof(file_content), 0);
 
         file.write(file_content.buffer, file_content.count);

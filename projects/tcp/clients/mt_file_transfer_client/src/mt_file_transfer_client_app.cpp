@@ -82,16 +82,18 @@ int main(int argc, char* argv[])
 
     {
         struct FileContent content;
+        int current_size = 0;
         while (!file.eof()) {
             memset(&content, 0, sizeof(content));
             file.read(content.buffer, FILE_BUFFER_SIZE);
             content.count = file.gcount();
             
-            CHECK_IO((send(client_socket, (char*)&content, sizeof(content), 0) > 0), -1, "Can't send file content")
-            CHECK_IO((recv(client_socket, (char*)&result, sizeof(result), 0) > 0), -1, "Can't send get sever response")
-            CHECK_IO((result.status == FileTransferResult::OK), -1, "Server error to receive file")
-            printf("\b\b\b\b\b%d %%", (int)(file.tellg() * 1.0 / file_header.size * 100));
-
+            CHECK_IO((send(client_socket, (char*)&content, sizeof(content), 0) > 0), -1, "Can't send file content");
+            CHECK_IO((recv(client_socket, (char*)&result, sizeof(result), 0) > 0), -1, "Can't send get sever response");
+            CHECK_IO((result.status == FileTransferResult::OK), -1, "Server error to receive file");
+    
+            current_size += content.count;
+            printf("\b\b\b\b\b%d %%", (int)(current_size * 1.0 / file_header.size * 100));
         }
     }
 

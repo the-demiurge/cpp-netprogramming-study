@@ -1,1 +1,2 @@
 add_subdirectory(square_root_client)
+add_subdirectory(mt_file_transfer_client)

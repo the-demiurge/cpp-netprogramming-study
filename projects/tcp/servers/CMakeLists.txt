@@ -1,1 +1,2 @@
 add_subdirectory(square_root_server)
+add_subdirectory(mt_file_transfer_server)

@@ -1,0 +1,4 @@
+add_subdirectory(shared_udp_structs)
+list(APPEND SHARED_UDP_DEPENDENCIES shared_udp_structs)
+add_subdirectory(senders)
+add_subdirectory(receivers)

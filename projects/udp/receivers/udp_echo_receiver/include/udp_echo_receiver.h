@@ -1,0 +1,9 @@
+#ifndef NETWORK_PROGRAMMING_UDP_ECHO_RECEIVER_H
+#define NETWORK_PROGRAMMING_UDP_ECHO_RECEIVER_H
+
+#include "common_net.h"
+
+#define DEFAULT_PORT 6557
+
+bool process_receiv_data(SOCKET);
+#endif //NETWORK_PROGRAMMING_UDP_ECHO_RECEIVER_H
